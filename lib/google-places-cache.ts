@@ -90,4 +90,11 @@ export const PLACES_CACHE: Record<number, PlacesCacheEntry> = {
   77: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFutRNFgrAOYhETpn7LnurZzWIhzRKKnfVkef9-VcumLGxDkIAgyzX6A4UzAkZhCex1fpeFdPPEOxSdiDhL0H8u_AjvrUjdchLrEq756-nGMMGZbK2fm--zeD6jBCmYx0qUrDbELyq8PFC9qQ=s4800-w600' },
   78: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGc0vYP0u4zhiwu4WHREs4_lGHc33AtP3gYZO-2KYFWOqFtiSJpp8fFWhfz9BiL4TfwKejG4eUe31JBP_33qEK36G-KFCqx4l4=s4800-w600' },
   79: { rating: 4.5, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGgVrCGeOl8qHsk-9RhDAIlU56uBD4L2qya8OZSHS28SiVDed--s-Gyu0Uh5eMqC297bnqpLmh_2ev2qu5CDxiGhoSGFWc4d4M=s4800-w600' },
+  // Late night deals (batch 3)
+  80: { rating: 4.3, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGiKush9fJh_Odd7D8GQRKxjm-KB42KW3oLqHh3vU0oLcstXjdrtdskVDb-uNPI2lQ1J_RT84JLLXkBqlMbVMqi-AxBXKjGfHE=s4800-w600' },
+  81: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNGGMmQWQ8oIFivQQHBuyHZSCatcFj-PkmQChXv0fWaNRU4rQ8mT9de0tHiqbOUtZ9wfoMp84_tRz0I-ETDjjwJns_VC_FRbcIKHOIyYAIRN9SALyq66H6dCDhcDBj1GM3AzX_iCUQc2sALyKFE=s4800-w600' },
+  82: { rating: 4.2, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFe6UwIlgMSS0MU3f1Kqat9Y2nsXhq9oMpnKxzKAGiw9keAdcWWFPornfeNV77QN3PFaWuBh5060UndeW0orXjXqGsl638XeYFZRhAQ-icQy8NtH0Ktwcg7ZhiVhvsnvUi-OyrbnoHHBEp2rBiqyTe1Jw=s4800-w600' },
+  83: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHGcjoemdIv4gLUAFzJZ1x6KSqnwDxKNyPCw_T3tKRlhFcmRnvZQTaXEuDgzoofw3vfVKLyffmkYYw2fGK5Xp43VNI0aoAqQXw-xe2c50IvXAxaMCLRJImJmL51U35P7ObInGK3MxCDu5RC=s4800-w600' },
+  84: { rating: 4.0, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFmQKh8LOZ1xHFqGm9sA6-_CTSmvo0vVuuUFx88kKX8DjILnFRGK4A5VZlhDkqur5U5Sh0py3eWqny2oTBB8AROhomkY7heSkgm5y7mOb-q9nkaxN-Cij0vzJDUw6D3WXzOlyzq2fJrDG_VUA=s4800-w600' },
+  85: { rating: 4.6, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqF4tlnuy8geK-szfxcCrAQFf0xoZoZgfy6YiWSFZwk4BW0Hjnp6fHZExQ6IKjV0uEdNPrV2pYoh0LNQldf8TpDiE-VveFYFaxg=s4800-w600' },
 };
