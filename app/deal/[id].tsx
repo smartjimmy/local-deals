@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Linking,
   Image,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -31,7 +32,11 @@ function formatDate(d: string | null): string {
 function openDirections(restaurantName: string, address: string) {
   const query = encodeURIComponent(`${restaurantName}, ${address}`);
   const url = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
-  Linking.openURL(url);
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    window.open(url, '_blank');
+  } else {
+    Linking.openURL(url);
+  }
 }
 
 export default function DealDetailScreen() {
