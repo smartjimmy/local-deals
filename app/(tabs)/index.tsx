@@ -12,36 +12,10 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
+import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
 
 const JS_DAY_TO_ABBR: Record<number, string> = {
   0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat',
-};
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Happy Hour': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
-  'Drinks': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
-  'Brunch': 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',
-  'Lunch': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
-  'Dinner': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
-  'default': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
-};
-
-function getImageForDeal(deal: Deal): string {
-  return CATEGORY_IMAGES[deal.category] || CATEGORY_IMAGES['default'];
-}
-
-type Deal = {
-  id: number;
-  restaurant_name: string;
-  deal_description: string;
-  category: string;
-  days_of_week: string;
-  start_time: string;
-  end_time: string;
-  address: string;
-  neighborhood: string;
-  last_verified: string;
-  is_active: boolean;
 };
 
 function formatTime(t: string | null): string {
@@ -119,6 +93,7 @@ function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
   isWide: boolean;
 }) {
   const availability = getAvailability(deal);
+  const ratingText = formatGoogleRating(deal.id);
   const tagLabel = availability.tag === 'available' ? 'Available Now'
     : availability.tag === 'upcoming' ? 'Upcoming'
     : 'Not Available';
@@ -132,7 +107,7 @@ function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
     >
       <View style={styles.cardImgWrap}>
         <Image
-          source={{ uri: getImageForDeal(deal) }}
+          source={{ uri: getDealImageUri(deal) }}
           style={[styles.cardImg, isWide && styles.cardImgWide]}
         />
         <TouchableOpacity
@@ -163,7 +138,16 @@ function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
         </View>
 
         <View style={styles.cardMeta}>
-          <Text style={styles.cardMetaLine}>📍 {deal.neighborhood}</Text>
+          <Text style={styles.cardMetaLine}>
+            {`📍 ${deal.neighborhood}`}
+            {ratingText != null ? (
+              <Text>
+                {'  ·  '}
+                <Text style={styles.cardRatingStar}>★</Text>
+                {` ${ratingText}`}
+              </Text>
+            ) : null}
+          </Text>
           <Text style={styles.cardMetaLine}>🕐 {formatTime(deal.start_time)} – {formatTime(deal.end_time)} · {deal.days_of_week}</Text>
         </View>
       </View>
@@ -473,6 +457,7 @@ const styles = StyleSheet.create({
 
   cardMeta: { gap: 4 },
   cardMetaLine: { fontSize: 13, color: '#717171' },
+  cardRatingStar: { color: '#E1306C' },
 
   // CTA
   cardCta: {

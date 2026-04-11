@@ -11,30 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Happy Hour': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
-  'Drinks': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
-  'Brunch': 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',
-  'Lunch': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
-  'Dinner': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
-  'default': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
-};
-
-type Deal = {
-  id: number;
-  restaurant_name: string;
-  deal_description: string;
-  category: string;
-  days_of_week: string;
-  start_time: string;
-  end_time: string;
-  address: string;
-  neighborhood: string;
-  last_verified: string;
-  is_active: boolean;
-  created_at: string;
-};
+import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
 
 function formatTime(t: string | null): string {
   if (!t) return '—';
@@ -102,7 +79,8 @@ export default function DealDetailScreen() {
     );
   }
 
-  const imageUri = CATEGORY_IMAGES[deal.category] || CATEGORY_IMAGES['default'];
+  const imageUri = getDealImageUri(deal);
+  const ratingText = formatGoogleRating(deal.id);
 
   return (
     <View style={styles.container}>
@@ -125,6 +103,13 @@ export default function DealDetailScreen() {
             <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
             <Text style={styles.verified}>✓ Verified</Text>
           </View>
+
+          {ratingText != null ? (
+            <Text style={styles.googleRating}>
+              <Text style={styles.googleRatingStar}>★</Text>
+              {` ${ratingText} on Google`}
+            </Text>
+          ) : null}
 
           {/* Description */}
           <Text style={styles.description}>{deal.deal_description}</Text>
@@ -247,6 +232,8 @@ const styles = StyleSheet.create({
   },
   restaurantName: { fontSize: 24, fontWeight: '800', color: '#222', letterSpacing: -0.5 },
   verified: { fontSize: 12, fontWeight: '600', color: '#008a05' },
+  googleRating: { fontSize: 15, fontWeight: '600', color: '#717171', marginBottom: 8 },
+  googleRatingStar: { color: '#E1306C' },
   description: { fontSize: 16, color: '#717171', lineHeight: 24, marginBottom: 4 },
 
   divider: { height: 1, backgroundColor: '#ebebeb', marginVertical: 20 },
