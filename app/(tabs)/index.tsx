@@ -356,8 +356,6 @@ export default function DealsScreen() {
                 <DealCard
                   key={deal.id}
                   deal={deal}
-                  saved={savedDeals.has(deal.id)}
-                  onToggleSave={() => toggleSave(deal.id)}
                   onPress={() => router.push(`/deal/${deal.id}` as any)}
                   isWide={true}
                 />
