@@ -28,9 +28,9 @@ function formatDate(d: string | null): string {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-function openDirections(address: string) {
-  const encoded = encodeURIComponent(address);
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${encoded}`;
+function openDirections(restaurantName: string, address: string) {
+  const query = encodeURIComponent(`${restaurantName}, ${address}`);
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
   Linking.openURL(url);
 }
 
@@ -142,7 +142,9 @@ export default function DealDetailScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Location</Text>
                 <Text style={styles.infoValue}>{deal.address}</Text>
-                <Text style={styles.infoSub}>{deal.neighborhood}</Text>
+                {deal.neighborhood && deal.address !== deal.neighborhood && (
+                  <Text style={styles.infoSub}>{deal.neighborhood}</Text>
+                )}
               </View>
             </View>
           </View>
@@ -165,7 +167,7 @@ export default function DealDetailScreen() {
         <View style={styles.bottomBar}>
           <TouchableOpacity
             style={styles.directionsBtn}
-            onPress={() => openDirections(deal.address)}
+            onPress={() => openDirections(deal.restaurant_name, deal.address)}
             activeOpacity={0.85}
           >
             <Text style={styles.directionsBtnText}>Get Directions</Text>

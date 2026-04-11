@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,10 @@ import {
   Image,
   TextInput,
   useWindowDimensions,
+  Animated,
+  Platform,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -170,6 +174,23 @@ export default function DealsScreen() {
   const [availableNowFilter, setAvailableNowFilter] = useState(false);
   const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(true);
+  const lastScrollY = useRef(0);
+  const filterHeight = useRef(new Animated.Value(1)).current;
+
+  const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const delta = y - lastScrollY.current;
+    // Only collapse/expand after meaningful scroll (>5px) and past initial area
+    if (y > 20 && delta > 5 && showFilters) {
+      setShowFilters(false);
+      Animated.timing(filterHeight, { toValue: 0, duration: 200, useNativeDriver: false }).start();
+    } else if ((delta < -5 || y <= 20) && !showFilters) {
+      setShowFilters(true);
+      Animated.timing(filterHeight, { toValue: 1, duration: 200, useNativeDriver: false }).start();
+    }
+    lastScrollY.current = y;
+  }, [showFilters]);
 
   const isDesktop = width >= 1024;
   const isTablet = width >= 640 && width < 1024;
@@ -266,8 +287,16 @@ export default function DealsScreen() {
         </View>
       </View>
 
-      {/* Available Now toggle */}
-      <View style={[styles.toggleWrap, isDesktop && styles.toggleWrapDesktop]}>
+      {/* Available Now toggle — collapses on scroll */}
+      <Animated.View style={[
+        styles.toggleWrap,
+        isDesktop && styles.toggleWrapDesktop,
+        {
+          maxHeight: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 52] }),
+          opacity: filterHeight,
+          overflow: 'hidden' as const,
+        },
+      ]}>
         <TouchableOpacity
           style={[styles.toggleBtn, availableNowFilter && styles.toggleBtnActive]}
           onPress={() => setAvailableNowFilter(!availableNowFilter)}
@@ -276,21 +305,7 @@ export default function DealsScreen() {
             Available Now
           </Text>
         </TouchableOpacity>
-      </View>
-
-      {/* Section header */}
-      <View style={[styles.sectionHeader, isDesktop && styles.sectionHeaderDesktop]}>
-        <Text style={styles.sectionTitle}>
-          {searchQuery.trim()
-            ? `Results for "${searchQuery.trim()}"`
-            : availableNowFilter
-            ? 'Available now'
-            : 'Near you'}
-        </Text>
-        <Text style={styles.sectionCount}>
-          {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
+      </Animated.View>
 
       {/* Deal cards */}
       <ScrollView
@@ -301,7 +316,22 @@ export default function DealsScreen() {
           isTablet && styles.listContentTablet,
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E1306C" />}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
       >
+        {/* Section header — scrolls with content */}
+        <View style={[styles.sectionHeader, isDesktop && styles.sectionHeaderDesktop]}>
+          <Text style={styles.sectionTitle}>
+            {searchQuery.trim()
+              ? `Results for "${searchQuery.trim()}"`
+              : availableNowFilter
+              ? 'Available now'
+              : 'Near you'}
+          </Text>
+          <Text style={styles.sectionCount}>
+            {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
+          </Text>
+        </View>
         {filtered.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>
@@ -404,7 +434,13 @@ const styles = StyleSheet.create({
   },
   searchBarDesktop: { maxWidth: 600 },
   searchIcon: { fontSize: 16, opacity: 0.5 },
-  searchInput: { flex: 1, fontSize: 14, color: '#222', padding: 0 },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#222',
+    padding: 0,
+    ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
+  } as any,
   searchClear: { fontSize: 14, color: '#b0b0b0', paddingLeft: 8 },
 
   // Toggle (replaces filter pills)
@@ -438,11 +474,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 4,
   },
-  sectionHeaderDesktop: { paddingHorizontal: 48 },
+  sectionHeaderDesktop: {},
   sectionTitle: { fontSize: 22, fontWeight: '700', color: '#222', letterSpacing: -0.5 },
   sectionCount: { fontSize: 13, fontWeight: '500', color: '#717171' },
 
