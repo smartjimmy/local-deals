@@ -160,6 +160,7 @@ export default function DealsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [availableNowFilter, setAvailableNowFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [region, setRegion] = useState<'South Bay' | 'OC'>('South Bay');
   const [showFilters, setShowFilters] = useState(true);
   const lastScrollY = useRef(0);
   const filterHeight = useRef(new Animated.Value(1)).current;
@@ -207,10 +208,18 @@ export default function DealsScreen() {
     fetchDeals();
   }
 
+  // Region filter
+  const OC_NEIGHBORHOODS = ['irvine', 'tustin', 'costa mesa', 'newport beach', 'newport'];
+  const regionDeals = deals.filter((d) => {
+    const n = (d.neighborhood || '').toLowerCase();
+    const isOC = OC_NEIGHBORHOODS.some((oc) => n.includes(oc));
+    return region === 'OC' ? isOC : !isOC;
+  });
+
   // Sort by availability: available > upcoming > not available
   // Within not_available: ended today (most recently) > other days
   const TAG_PRIORITY = { available: 0, upcoming: 1, not_available: 2 };
-  const sorted = [...deals].sort((a, b) => {
+  const sorted = [...regionDeals].sort((a, b) => {
     const aTag = getAvailability(a).tag;
     const bTag = getAvailability(b).tag;
     const primary = TAG_PRIORITY[aTag] - TAG_PRIORITY[bTag];
@@ -284,7 +293,7 @@ export default function DealsScreen() {
         </View>
       </View>
 
-      {/* Available Now toggle — collapses on scroll */}
+      {/* Region + Available Now toggles — collapses on scroll */}
       <Animated.View style={[
         styles.toggleWrap,
         isDesktop && styles.toggleWrapDesktop,
@@ -294,6 +303,26 @@ export default function DealsScreen() {
           overflow: 'hidden' as const,
         },
       ]}>
+        {/* Region selector */}
+        <TouchableOpacity
+          style={[styles.toggleBtn, region === 'South Bay' && styles.regionBtnActive]}
+          onPress={() => setRegion('South Bay')}
+        >
+          <Text style={[styles.toggleText, region === 'South Bay' && styles.regionTextActive]}>
+            South Bay
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toggleBtn, region === 'OC' && styles.regionBtnActive]}
+          onPress={() => setRegion('OC')}
+        >
+          <Text style={[styles.toggleText, region === 'OC' && styles.regionTextActive]}>
+            OC
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.toggleDivider} />
+
         <TouchableOpacity
           style={[styles.toggleBtn, availableNowFilter && styles.toggleBtnActive]}
           onPress={() => setAvailableNowFilter(!availableNowFilter)}
@@ -457,6 +486,9 @@ const styles = StyleSheet.create({
   },
   toggleText: { fontSize: 13, fontWeight: '500', color: '#717171' },
   toggleTextActive: { color: '#E1306C' },
+  regionBtnActive: { backgroundColor: '#222', borderColor: '#222' },
+  regionTextActive: { color: '#fff' },
+  toggleDivider: { width: 1, backgroundColor: '#ebebeb', marginVertical: 4 },
 
   // Section
   sectionHeader: {

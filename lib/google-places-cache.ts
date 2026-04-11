@@ -100,4 +100,10 @@ export const PLACES_CACHE: Record<number, PlacesCacheEntry> = {
   // Burlingame expansion
   86: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqEQb72Yd55lGBeIS9fGm6faBtDyjteqJC0-6cRfwCcRT9S1prXBHipj1XA8DKmAIgMfmk7GClp03WtEeM7-BK_tBXOJyevP6vU=s4800-w800', rating: 4 },
   87: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNH-TIlH3INX0ONUDrKOpTsg9ifYWCtfjcP1vZS9T-FUBc6uvx23DMPJbrKwbho_Pq8TUFElTPLxUjjW7MxXuCmK8f6TVCefgAVBC-eLR7uniKvdsnc1uH3ott_OuH8pxrw8Sn_oUNy9uZeYVyU=s4800-w800', rating: 4 },
+  // OC deals
+  88: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNEYF1eMHBjIvuk7uOn43oqJfhXwGC6karSwmqX3yTwQy9CjwwngHF78m3cUD7DaDkTeSWHUUK8YLHyTp41yoc2cheSoNJC6Rs2soaRrxe6JnO4HxqkTh5zVrSrrkSvALLL24CA2wfbNgpRh5tY=s4800-w800', rating: 4.3 },
+  89: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqFrCJhfwgPbJ3t00LrrEbEdGJgal4FbYzr0LNHmrT3bQ7PyRfDf-jk4ftV_97_D-8hFiYJ6qG558OWpP5xQhROWWrwtRdNRq_0=s4800-w800', rating: 4.3 },
+  90: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFo9IHNR8qAiBWSqFHJ_RW97PjMQtesDeof-ecK0XSHYGZ8Tq2J8oDfFJgwl9L8Fdca44NEPGFfeDVy2X1bPCuaNY-nbvOZxsYk4W4A1vDjRXs_dwjLckZtSxGI7qXXHZdHx4nlyIBKacD6=s4800-w800', rating: 4.5 },
+  91: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqEuUR2nfaxk8rsQyIViFK8k8NHP8zcd-LuMPhe0ZEzqBaMM01ew9iDyoXP1SrQrTWrzrIWDORUSl1JVINJdEXgkTh1juu2W3w=s4800-w800', rating: 4.4 },
+  92: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNEQrCGxsH1OanratZA6u9UanVedWydkvQ8ydoTMSl52RhUW-Wvu3PvyqIt6ehfJA8WZq8c8M7fm6G5Wz9EdFOsn1XQVGTQ8zOsrsn8rCLu_UUc62kaWpqpaviI_o1wYDX6kSlcaIRca4g7_4eXva6cRlQ=s4800-w800', rating: 4.5 },
 };
