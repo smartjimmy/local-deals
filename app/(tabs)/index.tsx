@@ -208,9 +208,29 @@ export default function DealsScreen() {
   }
 
   // Sort by availability: available > upcoming > not available
+  // Within not_available: ended today (most recently) > other days
   const TAG_PRIORITY = { available: 0, upcoming: 1, not_available: 2 };
   const sorted = [...deals].sort((a, b) => {
-    return TAG_PRIORITY[getAvailability(a).tag] - TAG_PRIORITY[getAvailability(b).tag];
+    const aTag = getAvailability(a).tag;
+    const bTag = getAvailability(b).tag;
+    const primary = TAG_PRIORITY[aTag] - TAG_PRIORITY[bTag];
+    if (primary !== 0) return primary;
+    // Sub-sort not_available: deals that ended today first (by how recently they ended)
+    if (aTag === 'not_available') {
+      const aEndedToday = getAvailability(a).detail.startsWith('Ended');
+      const bEndedToday = getAvailability(b).detail.startsWith('Ended');
+      if (aEndedToday && !bEndedToday) return -1;
+      if (!aEndedToday && bEndedToday) return 1;
+      // Both ended today — sort by end time (most recent first)
+      if (aEndedToday && bEndedToday && a.end_time && b.end_time) {
+        return b.end_time.localeCompare(a.end_time);
+      }
+    }
+    // Sub-sort upcoming: soonest first
+    if (aTag === 'upcoming' && a.start_time && b.start_time) {
+      return a.start_time.localeCompare(b.start_time);
+    }
+    return 0;
   });
   const searched = searchQuery.trim().length > 0
     ? sorted.filter((d) => {
