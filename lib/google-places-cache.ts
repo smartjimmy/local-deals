@@ -170,4 +170,15 @@ export const PLACES_CACHE: Record<number, PlacesCacheEntry> = {
   150: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqFKejfUauZqBLH0RqDDUtN2qQ2YvgrYPzCYSDRq8s4XPhYAUAs8b18vctjX1nv0CJq3Wwbr9RocfiWAfNN95MbH-fFrr4HLjPA=s4800-w800', rating: 4.4 },
   151: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHMaE6B_QjXNRZmkO7leflHbZJ96LuBbx1eMU2d6w6HFVScxtFnhjnD_3diDTIjB-Lu4xtuCAMe6doFQTQPREGpCTRB8scNx1b5tZoHgwvfprYGkjAJHGaLLSgbSSe4r4C3e5u4X3vaIt4154ChVLimPg=s4800-w800', rating: 4.5 },
   152: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFc_ircblkO_xmcK33wkeqKDAEGBib8urE06RpIfYMDYx7ur8r3W3MA5GZMO67SSsPb4n6w-1Y5WIzszqlUYH05N5wX88BXuM-24UgFVzvUJrLAh1NqxZeJPbbLYA2kv1nvE7SLTpta_GjJdg=s4800-w800', rating: 4.5 },
+  // Tustin expansion: Old Town + District + Market Place
+  153: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNEX2eZCi5uHjPgHR8aX96AbswiJ6rlauDj6S3IULvVYtwPl-hIW3B-7AeFApktRtSuF7zQnmo2CSDAzrNxnh0RooQ4NBK800nllN4vP34wzNLczvQokpf7UPh7bddwGJjHmmekhpogqGA8u1g=s4800-w800', rating: 4.7 },
+  154: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqF83GV9I9OXFBvB37NMElIm9Ks4Ln_tfkW0gTjd5OUK2BbhErlyKUDiqWOkedMn04sxstNMqpX0KX755m-DQ-qwQJiUlW0CvOU=s4800-w800', rating: 4.6 },
+  155: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqF8XqpeLpmfjQnkhNymEHAP73MQpvbleG4Vh_rs9vDPYW32tqpTJyj9Sh6bKMUBqdzCfuquxdKOsD_J7XEErqCwK5SAumCz_Oc=s4800-w721', rating: 4.6 },
+  156: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHufvHEdNzpC0iJcDJL0bALVQyEma00W0Y6oViqKnGe5vqtBwotaLkcQcUkIthSMgwAAzczzxUqm2xBjfTw6sFZnTVkPRA1AP4EYmkrvw2T8gaVeCzFYwswq6a0XcYXlxbj-7YizAEYFPzHqh3AZTyFAQ=s4800-w800', rating: 4.5 },
+  157: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFXi72p_Uq1lVLPTqkc-OifbBDjzfGkUXk2_YqRUnqPYPV0W9c-rHC7cPhPRtZFOZGhMQqXWpw46kXHpb1Q_FaJl_FDJX_rq8Pzj77DhR8NALcUBjz-CWETT6OgmgaKSWYtAKpOziSDK9CvfyGnoZ_3Zw=s4800-w800', rating: 4.3 },
+  158: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNEHT2xQzpQ1SrwWdiOMQtbaeV7MrkkuDKGSfil4afJq88x4UYMPp35PynNkCvuzhPG3_IHBpQ4Qg6TWtT5AHAYFCW0RdZlEaI7oR5z_-e2rUToawhy2ObrIY3tkmMe-mBLJH5sPwyMVKmJ0Vg=s4800-w800', rating: 4.5 },
+  159: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqHZpNjqBD24XwYtGCn69JPM3kqDhSok4PjntgLdk7yZ2F25ZXkul-HsD9W2gHPAxvqtTraUvyLlcXUp5q1RV10hUhx0-GMuCbE=s4800-w800', rating: 4.4 },
+  160: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqFIoOS_yuMevBhPpi1x0SQf3h6SfcSiTYOmOmgGolEJfN8BZ2Wwgts85kD3jEPDZh8MdUCQ6ImvejjgLbroHXdmIORMXrDFB-4=s4800-w800', rating: 3.9 },
+  161: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqFakCns5paJolEo5YrZmfgvuhS2pn8NZKlH1NkUWamWw-6ZcnKKU-U0Mc4cn6CZ0btRXziH2qr4fJHmnxjyLftJ__Vm1P5Sbzg=s4800-w800', rating: 4.6 },
+  162: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFbqOwZLGazteaoExJko61NG5JOYSZfSCmJ3PI0NeDQik8ErMwr2xNHoI2hFeCFxdoFGCSElcHz_FtgoA7jRkbsorIBEe09Bt_F8e97RP14ySMCAXaSbA4CBNMK6Fb0gZ8pBEdsuXkKZ6d-f4xjN-7fDQ=s4800-w800', rating: 4.7 },
 };
