@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Design 3 Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #FFF8F9;
+    color: #1C1B1F;
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* MD3 fuschia theme tokens */
+  :root {
+    --primary: #BC004B;
+    --on-primary: #FFFFFF;
+    --primary-container: #FFD9DE;
+    --on-primary-container: #400014;
+    --surface: #FFFBFF;
+    --surface-variant: #F3DDE0;
+    --on-surface: #1C1B1F;
+    --on-surface-variant: #524345;
+    --outline: #857375;
+    --outline-variant: #D7C1C4;
+    --secondary-container: #FFD9DE;
+    --tertiary-container: #FFD9CC;
+    --surface-container: #F5EDEE;
+    --surface-container-low: #FBF3F4;
+    --surface-container-high: #EFE7E8;
+    --inverse-surface: #342F30;
+    --inverse-on-surface: #F9EDED;
+  }
+
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  /* ── Search bar (MD3 style) ── */
+  .search-wrap { padding: 12px 16px; background: var(--surface); }
+  .search {
+    padding: 12px 16px;
+    background: var(--surface-container-high);
+    border-radius: 28px;
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: none;
+  }
+  .search .material-symbols-rounded { font-size: 22px; color: var(--on-surface-variant); }
+
+  /* ── Filter chips (MD3) ── */
+  .chips {
+    padding: 8px 16px 12px;
+    background: var(--surface);
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+
+  .chip {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: var(--on-surface-variant);
+    border: 1px solid var(--outline);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+  }
+  .chip:hover { background: var(--surface-container); }
+  .chip.selected {
+    background: var(--secondary-container);
+    color: var(--on-primary-container);
+    border-color: transparent;
+  }
+  .chip.selected .material-symbols-rounded { font-size: 16px; }
+
+  /* ── Section ── */
+  .section-header {
+    padding: 20px 16px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.1px;
+  }
+
+  /* ── Cards (MD3 filled card) ── */
+  .cards { padding: 0 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+  .card {
+    background: var(--surface-container-low);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .card:hover { background: var(--surface-container); }
+
+  .card-img {
+    height: 180px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  .card-img-1 { background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'); }
+  .card-img-2 { background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80'); }
+  .card-img-3 { background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'); }
+
+  /* Scrim gradient at bottom of image */
+  .card-img::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.3));
+  }
+
+  .card-save {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .card-save .material-symbols-rounded { font-size: 20px; color: var(--on-surface-variant); }
+  .card-save:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+  .card-body { padding: 16px; }
+
+  .card-name {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    color: var(--on-surface);
+    margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .card-meta-item {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-meta-item .material-symbols-rounded { font-size: 16px; color: var(--primary); }
+  .card-meta-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--outline-variant);
+    margin: 0 4px;
+  }
+
+  /* Tonal button */
+  .card-actions {
+    padding: 8px 16px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-tonal {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    letter-spacing: 0.1px;
+  }
+  .btn-tonal:hover { box-shadow: 0 1px 3px rgba(188, 0, 75, 0.25); }
+
+  .card-verified {
+    font-size: 11px;
+    font-weight: 500;
+    color: #2E7D32;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .card-verified .material-symbols-rounded { font-size: 15px; color: #2E7D32; }
+
+  /* ── Bottom nav (MD3 Navigation Bar) ── */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    display: flex;
+    justify-content: space-around;
+    padding: 0 0 8px;
+    box-shadow: 0 -1px 0 var(--outline-variant);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 0 0;
+    cursor: pointer;
+    min-width: 64px;
+  }
+  .nav-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.5px;
+  }
+  .nav-indicator {
+    width: 56px;
+    height: 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-item.active .nav-indicator {
+    background: var(--primary-container);
+  }
+  .nav-item.active .nav-indicator .material-symbols-rounded {
+    color: var(--on-primary-container);
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .nav-item:not(.active) .nav-indicator .material-symbols-rounded {
+    color: var(--on-surface-variant);
+  }
+  .nav-item.active .nav-label { color: var(--on-surface); }
+
+  .spacer { height: 80px; }
+</style>
+</head>
+<body>
+
+<div class="search-wrap">
+  <div class="search">
+    <span class="material-symbols-rounded">search</span>
+    Search restaurants or deals
+  </div>
+</div>
+
+<div class="chips">
+  <button class="chip selected">
+    <span class="material-symbols-rounded filled">check</span>
+    Available Now
+  </button>
+  <button class="chip">All</button>
+  <button class="chip">Happy Hour</button>
+  <button class="chip">Lunch</button>
+  <button class="chip">Dinner</button>
+  <button class="chip">Drinks</button>
+</div>
+
+<div class="section-header">
+  <div class="section-title">3 deals near you</div>
+</div>
+
+<div class="cards">
+
+  <div class="card">
+    <div class="card-img card-img-1">
+      <div class="card-save">
+        <span class="material-symbols-rounded">favorite</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">Tamarine</div>
+      <div class="card-desc">2-course meal with soup or salad + entree for $22.</div>
+      <div class="card-meta">
+        <div class="card-meta-item"><span class="material-symbols-rounded">location_on</span> Palo Alto</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item"><span class="material-symbols-rounded">schedule</span> 11:30 AM – 2:30 PM</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item">Mon–Fri</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-tonal">View deal</button>
+      <div class="card-verified"><span class="material-symbols-rounded filled">verified</span> Verified</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-img card-img-2">
+      <div class="card-save">
+        <span class="material-symbols-rounded">favorite</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">The Bird Dog</div>
+      <div class="card-desc">Bar bites and craft cocktails at reduced prices. Great after-work spot.</div>
+      <div class="card-meta">
+        <div class="card-meta-item"><span class="material-symbols-rounded">location_on</span> Palo Alto</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item"><span class="material-symbols-rounded">schedule</span> 4:00 PM – 6:30 PM</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item">Mon–Sat</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-tonal">View deal</button>
+      <div class="card-verified"><span class="material-symbols-rounded filled">verified</span> Verified</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-img card-img-3">
+      <div class="card-save">
+        <span class="material-symbols-rounded">favorite</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">Vino Locale</div>
+      <div class="card-desc">Half-price wine by the glass and $5 small plates.</div>
+      <div class="card-meta">
+        <div class="card-meta-item"><span class="material-symbols-rounded">location_on</span> Palo Alto</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item"><span class="material-symbols-rounded">schedule</span> 5:00 PM – 7:00 PM</div>
+        <span class="card-meta-sep"></span>
+        <div class="card-meta-item">Mon–Fri</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-tonal">View deal</button>
+      <div class="card-verified"><span class="material-symbols-rounded filled">verified</span> Verified</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="spacer"></div>
+
+<div class="nav">
+  <div class="nav-item active">
+    <div class="nav-indicator">
+      <span class="material-symbols-rounded">restaurant</span>
+    </div>
+    <div class="nav-label">Deals</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-indicator">
+      <span class="material-symbols-rounded">map</span>
+    </div>
+    <div class="nav-label">Map</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-indicator">
+      <span class="material-symbols-rounded">favorite</span>
+    </div>
+    <div class="nav-label">Saved</div>
+  </div>
+</div>
+
+</body>
+</html>

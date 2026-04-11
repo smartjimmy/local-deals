@@ -7,9 +7,19 @@ import {
   ActivityIndicator,
   StyleSheet,
   Linking,
+  Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  'Happy Hour': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+  'Drinks': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+  'Brunch': 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',
+  'Lunch': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+  'Dinner': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
+  'default': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
+};
 
 type Deal = {
   id: number;
@@ -52,6 +62,7 @@ export default function DealDetailScreen() {
   const router = useRouter();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     async function fetchDeal() {
@@ -75,7 +86,7 @@ export default function DealDetailScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#E85D04" />
+        <ActivityIndicator size="large" color="#E1306C" />
       </View>
     );
   }
@@ -91,89 +102,194 @@ export default function DealDetailScreen() {
     );
   }
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Back button */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backLink}>
-        <Text style={styles.backLinkText}>← Back to deals</Text>
-      </TouchableOpacity>
+  const imageUri = CATEGORY_IMAGES[deal.category] || CATEGORY_IMAGES['default'];
 
-      {/* Header card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTopRow}>
-          <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryBadgeText}>{deal.category}</Text>
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Hero image */}
+        <View style={styles.heroWrap}>
+          <Image source={{ uri: imageUri }} style={styles.heroImg} />
+          <TouchableOpacity style={styles.heroBack} onPress={() => router.back()}>
+            <Text style={styles.heroBackText}>←</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.heroHeart} onPress={() => setSaved(!saved)}>
+            <Text style={styles.heroHeartIcon}>{saved ? '❤️' : '🤍'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Main content */}
+        <View style={styles.body}>
+          {/* Name + verified */}
+          <View style={styles.titleRow}>
+            <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
+            <Text style={styles.verified}>✓ Verified</Text>
+          </View>
+
+          {/* Description */}
+          <Text style={styles.description}>{deal.deal_description}</Text>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Info rows */}
+          <View style={styles.infoSection}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>🕐</Text>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Hours</Text>
+                <Text style={styles.infoValue}>
+                  {formatTime(deal.start_time)} – {formatTime(deal.end_time)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>📅</Text>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Days</Text>
+                <Text style={styles.infoValue}>{deal.days_of_week}</Text>
+              </View>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoIcon}>📍</Text>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Location</Text>
+                <Text style={styles.infoValue}>{deal.address}</Text>
+                <Text style={styles.infoSub}>{deal.neighborhood}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Verified note */}
+          <View style={styles.verifiedBox}>
+            <Text style={styles.verifiedBoxTitle}>✓ Last verified {formatDate(deal.last_verified)}</Text>
+            <Text style={styles.verifiedBoxNote}>
+              Always call ahead to confirm the deal is still available.
+            </Text>
           </View>
         </View>
-        <Text style={styles.dealDescription}>{deal.deal_description}</Text>
-      </View>
+      </ScrollView>
 
-      {/* Timing — most important, shown prominently */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>HOURS</Text>
-        <View style={styles.timingBox}>
-          <Text style={styles.timingText}>
-            🕐 {formatTime(deal.start_time)} – {formatTime(deal.end_time)}
-          </Text>
-          <Text style={styles.daysText}>📅 {deal.days_of_week}</Text>
-        </View>
-      </View>
-
-      {/* Last verified */}
-      <View style={styles.verifiedBox}>
-        <Text style={styles.verifiedText}>✓ Last verified: {formatDate(deal.last_verified)}</Text>
-        <Text style={styles.verifiedNote}>
-          Always call ahead to confirm deal is still available.
-        </Text>
-      </View>
-
-      {/* Location */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>LOCATION</Text>
-        <Text style={styles.addressText}>📍 {deal.address}</Text>
-        <Text style={styles.neighborhoodText}>{deal.neighborhood}</Text>
-      </View>
-
-      {/* Directions button */}
+      {/* Sticky bottom CTA */}
       {deal.address ? (
-        <TouchableOpacity
-          style={styles.directionsBtn}
-          onPress={() => openDirections(deal.address)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.directionsBtnText}>🗺 Get Directions in Google Maps</Text>
-        </TouchableOpacity>
+        <View style={styles.bottomBar}>
+          <TouchableOpacity
+            style={styles.directionsBtn}
+            onPress={() => openDirections(deal.address)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.directionsBtnText}>Get Directions</Text>
+          </TouchableOpacity>
+        </View>
       ) : null}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9F5F0' },
-  content: { padding: 20, gap: 16, paddingBottom: 60 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F5F0' },
-  errorText: { fontSize: 16, color: '#666', marginBottom: 16 },
-  backBtn: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#E85D04', borderRadius: 10 },
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { paddingBottom: 100, maxWidth: 720, width: '100%', alignSelf: 'center' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
+  errorText: { fontSize: 16, color: '#717171', marginBottom: 16 },
+  backBtn: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#E1306C', borderRadius: 24 },
   backBtnText: { color: '#fff', fontWeight: '600' },
-  backLink: { marginBottom: 4 },
-  backLinkText: { color: '#E85D04', fontSize: 15, fontWeight: '600' },
-  headerCard: { backgroundColor: '#fff', borderRadius: 14, padding: 18, gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 3 },
-  headerTopRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
-  restaurantName: { fontSize: 22, fontWeight: '800', color: '#1A1A1A', flex: 1 },
-  categoryBadge: { backgroundColor: '#FFF0E6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  categoryBadgeText: { fontSize: 12, fontWeight: '600', color: '#E85D04' },
-  dealDescription: { fontSize: 15, color: '#444', lineHeight: 22 },
-  section: { gap: 8 },
-  sectionLabel: { fontSize: 11, fontWeight: '700', color: '#AAA', letterSpacing: 1 },
-  timingBox: { backgroundColor: '#FFF8F3', borderRadius: 12, padding: 16, gap: 8, borderWidth: 1, borderColor: '#FDDBB0' },
-  timingText: { fontSize: 20, fontWeight: '800', color: '#E85D04' },
-  daysText: { fontSize: 14, color: '#666' },
-  verifiedBox: { backgroundColor: '#F0FBF0', borderRadius: 12, padding: 14, gap: 4, borderWidth: 1, borderColor: '#C8E6C9' },
-  verifiedText: { fontSize: 14, fontWeight: '700', color: '#2E7D32' },
-  verifiedNote: { fontSize: 12, color: '#4CAF50' },
-  addressText: { fontSize: 15, color: '#333', fontWeight: '500' },
-  neighborhoodText: { fontSize: 13, color: '#888' },
-  directionsBtn: { backgroundColor: '#E85D04', borderRadius: 14, padding: 18, alignItems: 'center', marginTop: 4 },
+
+  // Hero image
+  heroWrap: { position: 'relative' },
+  heroImg: { width: '100%', height: 280, backgroundColor: '#f0f0f0' },
+  heroBack: {
+    position: 'absolute',
+    top: 52,
+    left: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  heroBackText: { fontSize: 18, color: '#222' },
+  heroHeart: {
+    position: 'absolute',
+    top: 52,
+    right: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  heroHeartIcon: { fontSize: 18 },
+
+  // Body
+  body: { padding: 20 },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  restaurantName: { fontSize: 24, fontWeight: '800', color: '#222', letterSpacing: -0.5 },
+  verified: { fontSize: 12, fontWeight: '600', color: '#008a05' },
+  description: { fontSize: 16, color: '#717171', lineHeight: 24, marginBottom: 4 },
+
+  divider: { height: 1, backgroundColor: '#ebebeb', marginVertical: 20 },
+
+  // Info section
+  infoSection: { gap: 20 },
+  infoRow: { flexDirection: 'row', gap: 14 },
+  infoIcon: { fontSize: 20, marginTop: 2 },
+  infoContent: { flex: 1 },
+  infoLabel: { fontSize: 12, fontWeight: '600', color: '#b0b0b0', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
+  infoValue: { fontSize: 16, fontWeight: '600', color: '#222' },
+  infoSub: { fontSize: 13, color: '#717171', marginTop: 2 },
+
+  // Verified box
+  verifiedBox: {
+    backgroundColor: '#f0fbf0',
+    borderRadius: 12,
+    padding: 16,
+    gap: 4,
+  },
+  verifiedBoxTitle: { fontSize: 14, fontWeight: '600', color: '#2E7D32' },
+  verifiedBoxNote: { fontSize: 13, color: '#4CAF50', lineHeight: 18 },
+
+  // Bottom bar
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ebebeb',
+    padding: 16,
+    paddingBottom: 32,
+    alignItems: 'center',
+  },
+  directionsBtn: {
+    backgroundColor: '#E1306C',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    maxWidth: 720,
+    width: '100%',
+  },
   directionsBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

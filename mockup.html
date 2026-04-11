@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Mockup v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #f7f7f7;
+    color: #222;
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :root {
+    --accent: #E1306C;
+    --accent-light: #fff0f5;
+    --bg: #f7f7f7;
+    --card: #ffffff;
+    --text: #222222;
+    --text-secondary: #717171;
+    --text-muted: #b0b0b0;
+    --border: #ebebeb;
+    --green: #008a05;
+  }
+
+  /* ── Search bar ── */
+  .search-wrap { padding: 16px 20px 12px; background: var(--card); }
+  .search {
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 40px;
+    font-size: 14px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s;
+  }
+  .search:hover { border-color: #ccc; }
+  .search-icon { font-size: 16px; opacity: 0.5; }
+
+  /* ── Filters ── */
+  .filters {
+    padding: 12px 20px;
+    background: var(--card);
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .pill {
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .pill:hover { border-color: var(--text); color: var(--text); }
+  .pill.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: #f5c0d5;
+  }
+
+  /* ── Section header ── */
+  .section-header {
+    padding: 20px 20px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .section-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ── Cards ── */
+  .cards { padding: 12px 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+  /* Image area */
+  .card-img {
+    height: 180px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  .card-img-1 { background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'); }
+  .card-img-2 { background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80'); }
+  .card-img-3 { background-image: url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'); }
+
+  .card-heart {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .card-heart:hover { background: rgba(0,0,0,0.45); }
+
+  /* Card body */
+  .card-body { padding: 16px; }
+
+  .card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .card-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .card-verified {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-tag {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-tag-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    display: inline-block;
+  }
+
+  /* CTA row */
+  .card-cta {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-cta-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .card-cta-arrow {
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 22px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item:hover { color: var(--text-secondary); }
+  .nav-icon { font-size: 22px; }
+
+  .spacer { height: 80px; }
+</style>
+</head>
+<body>
+
+<div class="search-wrap">
+  <div class="search">
+    <span class="search-icon">🔍</span>
+    Search restaurants or deals...
+  </div>
+</div>
+
+<div class="filters">
+  <button class="pill active">Available Now</button>
+  <button class="pill">All</button>
+  <button class="pill">Happy Hour</button>
+  <button class="pill">Lunch</button>
+  <button class="pill">Dinner</button>
+  <button class="pill">Drinks</button>
+</div>
+
+<div class="section-header">
+  <div class="section-title">Near you</div>
+  <div class="section-count">3 deals</div>
+</div>
+
+<div class="cards">
+
+  <!-- Card 1 -->
+  <div class="card">
+    <div class="card-img card-img-1">
+      <div class="card-heart">🤍</div>
+    </div>
+    <div class="card-body">
+      <div class="card-top-row">
+        <div class="card-name">Tamarine</div>
+        <div class="card-verified">✓ Verified</div>
+      </div>
+      <div class="card-desc">2-course meal with soup or salad + entree for $22.</div>
+      <div class="card-footer">
+        <div class="card-tag">📍 Palo Alto</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">11:30 AM – 2:30 PM</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">Mon–Fri</div>
+      </div>
+    </div>
+    <div class="card-cta">
+      <div class="card-cta-text">View deal</div>
+      <div class="card-cta-arrow">→</div>
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="card">
+    <div class="card-img card-img-2">
+      <div class="card-heart">🤍</div>
+    </div>
+    <div class="card-body">
+      <div class="card-top-row">
+        <div class="card-name">The Bird Dog</div>
+        <div class="card-verified">✓ Verified</div>
+      </div>
+      <div class="card-desc">Bar bites and craft cocktails at reduced prices. Great after-work spot.</div>
+      <div class="card-footer">
+        <div class="card-tag">📍 Palo Alto</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">4:00 PM – 6:30 PM</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">Mon–Sat</div>
+      </div>
+    </div>
+    <div class="card-cta">
+      <div class="card-cta-text">View deal</div>
+      <div class="card-cta-arrow">→</div>
+    </div>
+  </div>
+
+  <!-- Card 3 -->
+  <div class="card">
+    <div class="card-img card-img-3">
+      <div class="card-heart">🤍</div>
+    </div>
+    <div class="card-body">
+      <div class="card-top-row">
+        <div class="card-name">Vino Locale</div>
+        <div class="card-verified">✓ Verified</div>
+      </div>
+      <div class="card-desc">Half-price wine by the glass and $5 small plates.</div>
+      <div class="card-footer">
+        <div class="card-tag">📍 Palo Alto</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">5:00 PM – 7:00 PM</div>
+        <span class="card-tag-sep"></span>
+        <div class="card-tag">Mon–Fri</div>
+      </div>
+    </div>
+    <div class="card-cta">
+      <div class="card-cta-text">View deal</div>
+      <div class="card-cta-arrow">→</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="spacer"></div>
+
+<div class="nav">
+  <div class="nav-item active">
+    <div class="nav-icon">🍽</div>
+    Deals
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">📍</div>
+    Map
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">❤️</div>
+    Saved
+  </div>
+</div>
+
+</body>
+</html>

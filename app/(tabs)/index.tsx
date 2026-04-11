@@ -7,17 +7,28 @@ import {
   ActivityIndicator,
   StyleSheet,
   RefreshControl,
+  Image,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
-
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const JS_DAY_TO_ABBR: Record<number, string> = {
   0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat',
 };
 
-const CATEGORIES = ['All', 'Happy Hour', 'Brunch', 'Lunch', 'Dinner', 'Drinks', 'Other'];
+const CATEGORY_IMAGES: Record<string, string> = {
+  'Happy Hour': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+  'Drinks': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+  'Brunch': 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',
+  'Lunch': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+  'Dinner': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
+  'default': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
+};
+
+function getImageForDeal(deal: Deal): string {
+  return CATEGORY_IMAGES[deal.category] || CATEGORY_IMAGES['default'];
+}
 
 type Deal = {
   id: number;
@@ -42,23 +53,141 @@ function formatTime(t: string | null): string {
   return `${h}:${minStr} ${ampm}`;
 }
 
-function formatDate(d: string | null): string {
-  if (!d) return 'Unknown';
-  const date = new Date(d + 'T00:00:00');
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 function todayAbbr(): string {
   return JS_DAY_TO_ABBR[new Date().getDay()];
 }
 
+type AvailabilityStatus =
+  | { tag: 'available'; detail: string }
+  | { tag: 'upcoming'; detail: string }
+  | { tag: 'not_available'; detail: string };
+
+function formatDuration(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} hr`;
+  return `${h} hr ${m} min`;
+}
+
+function getAvailability(deal: Deal): AvailabilityStatus {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const todayMatch = deal.days_of_week?.toLowerCase().includes(todayAbbr().toLowerCase());
+
+  if (!deal.start_time || !deal.end_time) {
+    if (todayMatch) return { tag: 'available', detail: 'Available today' };
+    return { tag: 'not_available', detail: `Available ${deal.days_of_week}` };
+  }
+
+  const [sh, sm] = deal.start_time.split(':').map(Number);
+  const [eh, em] = deal.end_time.split(':').map(Number);
+  const startMinutes = sh * 60 + sm;
+  const endMinutes = eh * 60 + em;
+
+  if (todayMatch) {
+    if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+      const remaining = endMinutes - currentMinutes;
+      return { tag: 'available', detail: `For the next ${formatDuration(remaining)}` };
+    }
+    if (currentMinutes < startMinutes) {
+      const until = startMinutes - currentMinutes;
+      return { tag: 'upcoming', detail: `Available in ${formatDuration(until)}` };
+    }
+    // Already passed today
+    return { tag: 'not_available', detail: `Ended at ${formatTime(deal.end_time)}` };
+  }
+
+  return { tag: 'not_available', detail: `Available ${deal.days_of_week}` };
+}
+
+function isAvailableNow(deal: Deal): boolean {
+  return getAvailability(deal).tag === 'available';
+}
+
+const TAG_STYLES = {
+  available: { bg: '#E8F5E9', color: '#2E7D32' },
+  upcoming: { bg: '#FFF3E0', color: '#E65100' },
+  not_available: { bg: '#f0f0f0', color: '#888' },
+};
+
+function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
+  deal: Deal;
+  saved: boolean;
+  onToggleSave: () => void;
+  onPress: () => void;
+  isWide: boolean;
+}) {
+  const availability = getAvailability(deal);
+  const tagLabel = availability.tag === 'available' ? 'Available Now'
+    : availability.tag === 'upcoming' ? 'Upcoming'
+    : 'Not Available';
+  const tagStyle = TAG_STYLES[availability.tag];
+
+  return (
+    <TouchableOpacity
+      style={[styles.card, isWide && styles.cardWide]}
+      onPress={onPress}
+      activeOpacity={0.92}
+    >
+      <View style={styles.cardImgWrap}>
+        <Image
+          source={{ uri: getImageForDeal(deal) }}
+          style={[styles.cardImg, isWide && styles.cardImgWide]}
+        />
+        <TouchableOpacity
+          style={styles.cardHeart}
+          onPress={(e) => {
+            e.stopPropagation();
+            onToggleSave();
+          }}
+        >
+          <Text style={styles.cardHeartIcon}>
+            {saved ? '❤️' : '🤍'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.cardBody}>
+        <Text style={styles.cardName}>{deal.restaurant_name}</Text>
+        <Text style={styles.cardDesc} numberOfLines={2}>{deal.deal_description}</Text>
+
+        {/* Availability tag */}
+        <View style={styles.availabilityRow}>
+          <View style={[styles.availabilityTag, { backgroundColor: tagStyle.bg }]}>
+            <Text style={[styles.availabilityTagText, { color: tagStyle.color }]}>{tagLabel}</Text>
+          </View>
+          <Text style={[styles.availabilityDetail, { color: tagStyle.color }]}>
+            {availability.detail}
+          </Text>
+        </View>
+
+        <View style={styles.cardMeta}>
+          <Text style={styles.cardMetaLine}>📍 {deal.neighborhood}</Text>
+          <Text style={styles.cardMetaLine}>🕐 {formatTime(deal.start_time)} – {formatTime(deal.end_time)} · {deal.days_of_week}</Text>
+        </View>
+      </View>
+
+      <View style={styles.cardCta}>
+        <Text style={styles.cardCtaText}>View deal</Text>
+        <Text style={styles.cardCtaArrow}>→</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 export default function DealsScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<string>(todayAbbr());
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [availableNowFilter, setAvailableNowFilter] = useState(false);
+  const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
+
+  const isDesktop = width >= 1024;
+  const isTablet = width >= 640 && width < 1024;
+  const columns = isDesktop ? 3 : isTablet ? 2 : 1;
 
   async function fetchDeals() {
     const { data, error } = await supabase
@@ -85,147 +214,297 @@ export default function DealsScreen() {
     fetchDeals();
   }
 
-  const filtered = deals.filter((d) => {
-    const dayMatch = d.days_of_week?.toLowerCase().includes(selectedDay.toLowerCase());
-    const catMatch = selectedCategory === 'All' || d.category === selectedCategory;
-    return dayMatch && catMatch;
+  function toggleSave(dealId: number) {
+    setSavedDeals((prev) => {
+      const next = new Set(prev);
+      if (next.has(dealId)) next.delete(dealId);
+      else next.add(dealId);
+      return next;
+    });
+  }
+
+  // Sort by availability: available > upcoming > not available
+  const TAG_PRIORITY = { available: 0, upcoming: 1, not_available: 2 };
+  const sorted = [...deals].sort((a, b) => {
+    return TAG_PRIORITY[getAvailability(a).tag] - TAG_PRIORITY[getAvailability(b).tag];
   });
+  const filtered = availableNowFilter ? sorted.filter(isAvailableNow) : sorted;
+
+  function getRows(items: Deal[], cols: number): Deal[][] {
+    const rows: Deal[][] = [];
+    for (let i = 0; i < items.length; i += cols) {
+      rows.push(items.slice(i, i + cols));
+    }
+    return rows;
+  }
 
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#E85D04" />
-        <Text style={styles.loadingText}>Loading deals…</Text>
+        <ActivityIndicator size="large" color="#E1306C" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🍽 Local Deals</Text>
-        <Text style={styles.headerSub}>
-          {filtered.length} deal{filtered.length !== 1 ? 's' : ''} found
-        </Text>
+      {/* Search bar */}
+      <View style={[styles.searchWrap, isDesktop && styles.searchWrapDesktop]}>
+        <View style={[styles.searchBar, isDesktop && styles.searchBarDesktop]}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <Text style={styles.searchPlaceholder}>Search restaurants or deals</Text>
+        </View>
       </View>
 
-      {/* Day filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow} contentContainerStyle={styles.filterRowContent}>
-        {DAYS.map((day) => (
-          <TouchableOpacity
-            key={day}
-            style={[styles.filterChip, selectedDay === day && styles.filterChipActive]}
-            onPress={() => setSelectedDay(day)}
-          >
-            <Text style={[styles.filterChipText, selectedDay === day && styles.filterChipTextActive]}>
-              {day}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Available Now toggle */}
+      <View style={[styles.toggleWrap, isDesktop && styles.toggleWrapDesktop]}>
+        <TouchableOpacity
+          style={[styles.toggleBtn, availableNowFilter && styles.toggleBtnActive]}
+          onPress={() => setAvailableNowFilter(!availableNowFilter)}
+        >
+          <Text style={[styles.toggleText, availableNowFilter && styles.toggleTextActive]}>
+            Available Now
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Category filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow} contentContainerStyle={styles.filterRowContent}>
-        {CATEGORIES.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            style={[styles.filterChip, styles.filterChipCat, selectedCategory === cat && styles.filterChipActive]}
-            onPress={() => setSelectedCategory(cat)}
-          >
-            <Text style={[styles.filterChipText, selectedCategory === cat && styles.filterChipTextActive]}>
-              {cat}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Section header */}
+      <View style={[styles.sectionHeader, isDesktop && styles.sectionHeaderDesktop]}>
+        <Text style={styles.sectionTitle}>
+          {availableNowFilter ? 'Available now' : 'Near you'}
+        </Text>
+        <Text style={styles.sectionCount}>
+          {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
+        </Text>
+      </View>
 
       {/* Deal cards */}
       <ScrollView
         style={styles.list}
-        contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E85D04" />}
+        contentContainerStyle={[
+          styles.listContent,
+          isDesktop && styles.listContentDesktop,
+          isTablet && styles.listContentTablet,
+        ]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E1306C" />}
       >
         {filtered.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🔍</Text>
-            <Text style={styles.emptyTitle}>No deals found</Text>
-            <Text style={styles.emptyText}>Try a different day or category.</Text>
+            <Text style={styles.emptyIcon}>🍽</Text>
+            <Text style={styles.emptyTitle}>
+              {availableNowFilter ? 'No deals right now' : 'No deals found'}
+            </Text>
+            <Text style={styles.emptyText}>
+              {availableNowFilter ? 'Nothing available at the moment. Tap "Available Now" to see all deals.' : 'Check back soon for new deals.'}
+            </Text>
           </View>
-        ) : (
+        ) : columns === 1 ? (
           filtered.map((deal) => (
-            <TouchableOpacity
+            <DealCard
               key={deal.id}
-              style={styles.card}
+              deal={deal}
+              saved={savedDeals.has(deal.id)}
+              onToggleSave={() => toggleSave(deal.id)}
               onPress={() => router.push(`/deal/${deal.id}` as any)}
-              activeOpacity={0.85}
-            >
-              {/* Restaurant name + category badge */}
-              <View style={styles.cardTopRow}>
-                <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryBadgeText}>{deal.category}</Text>
-                </View>
-              </View>
-
-              {/* Deal description */}
-              <Text style={styles.dealDescription}>{deal.deal_description}</Text>
-
-              {/* Hours — prominent */}
-              <View style={styles.timingRow}>
-                <Text style={styles.timingIcon}>🕐</Text>
-                <Text style={styles.timingText}>
-                  {formatTime(deal.start_time)} – {formatTime(deal.end_time)}
-                </Text>
-                <Text style={styles.timingDivider}>·</Text>
-                <Text style={styles.daysText}>{deal.days_of_week}</Text>
-              </View>
-
-              {/* Neighborhood + last verified */}
-              <View style={styles.cardBottomRow}>
-                <Text style={styles.neighborhood}>📍 {deal.neighborhood}</Text>
-                <Text style={styles.lastVerified}>✓ Verified {formatDate(deal.last_verified)}</Text>
-              </View>
-            </TouchableOpacity>
+              isWide={false}
+            />
+          ))
+        ) : (
+          getRows(filtered, columns).map((row, rowIdx) => (
+            <View key={rowIdx} style={styles.gridRow}>
+              {row.map((deal) => (
+                <DealCard
+                  key={deal.id}
+                  deal={deal}
+                  saved={savedDeals.has(deal.id)}
+                  onToggleSave={() => toggleSave(deal.id)}
+                  onPress={() => router.push(`/deal/${deal.id}` as any)}
+                  isWide={true}
+                />
+              ))}
+              {row.length < columns &&
+                Array.from({ length: columns - row.length }).map((_, i) => (
+                  <View key={`spacer-${i}`} style={styles.cardWide} />
+                ))
+              }
+            </View>
           ))
         )}
+        {/* Spacer for bottom nav */}
+        <View style={{ height: 80 }} />
       </ScrollView>
+
+      {/* Bottom nav */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem}>
+          <Text style={styles.navIcon}>🍽</Text>
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Deals</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Text style={styles.navIcon}>📍</Text>
+          <Text style={styles.navLabel}>Map</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Text style={styles.navIcon}>❤️</Text>
+          <Text style={styles.navLabel}>Saved</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9F5F0' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F5F0' },
-  loadingText: { marginTop: 12, color: '#666', fontSize: 15 },
-  header: { backgroundColor: '#E85D04', paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20 },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: '#fff' },
-  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
-  filterRow: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#F0EBE3', maxHeight: 52 },
-  filterRowContent: { paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexDirection: 'row', alignItems: 'center' },
-  filterChip: { paddingHorizontal: 14, paddingVertical: 5, borderRadius: 20, backgroundColor: '#F0EBE3', borderWidth: 1, borderColor: '#E0D9CF' },
-  filterChipCat: { backgroundColor: '#FFF5EE', borderColor: '#FDDBB0' },
-  filterChipActive: { backgroundColor: '#E85D04', borderColor: '#E85D04' },
-  filterChipText: { fontSize: 13, fontWeight: '600', color: '#555' },
-  filterChipTextActive: { color: '#fff' },
+  container: { flex: 1, backgroundColor: '#f7f7f7' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
+
+  // Search
+  searchWrap: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12, backgroundColor: '#fff' },
+  searchWrapDesktop: { paddingHorizontal: 48 },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#ebebeb',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  searchBarDesktop: { maxWidth: 600 },
+  searchIcon: { fontSize: 16, opacity: 0.5 },
+  searchPlaceholder: { fontSize: 14, color: '#b0b0b0' },
+
+  // Toggle (replaces filter pills)
+  toggleWrap: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ebebeb',
+  },
+  toggleWrapDesktop: { paddingHorizontal: 48 },
+  toggleBtn: {
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: '#ebebeb',
+    backgroundColor: 'transparent',
+  },
+  toggleBtnActive: {
+    backgroundColor: '#fff0f5',
+    borderColor: '#f5c0d5',
+  },
+  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171' },
+  toggleTextActive: { color: '#E1306C' },
+
+  // Section
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 4,
+  },
+  sectionHeaderDesktop: { paddingHorizontal: 48 },
+  sectionTitle: { fontSize: 22, fontWeight: '700', color: '#222', letterSpacing: -0.5 },
+  sectionCount: { fontSize: 13, fontWeight: '500', color: '#717171' },
+
+  // List
   list: { flex: 1 },
-  listContent: { padding: 16, gap: 14 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 3, gap: 8 },
-  cardTopRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
-  restaurantName: { fontSize: 17, fontWeight: '700', color: '#1A1A1A', flex: 1 },
-  categoryBadge: { backgroundColor: '#FFF0E6', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12 },
-  categoryBadgeText: { fontSize: 11, fontWeight: '600', color: '#E85D04' },
-  dealDescription: { fontSize: 14, color: '#444', lineHeight: 20 },
-  timingRow: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFF8F3', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
-  timingIcon: { fontSize: 13 },
-  timingText: { fontSize: 13, fontWeight: '700', color: '#E85D04' },
-  timingDivider: { color: '#CCC', fontWeight: '700' },
-  daysText: { fontSize: 12, color: '#666', flex: 1 },
-  cardBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 },
-  neighborhood: { fontSize: 12, color: '#888' },
-  lastVerified: { fontSize: 11, color: '#4CAF50', fontWeight: '600' },
+  listContent: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, gap: 16 },
+  listContentTablet: { paddingHorizontal: 32 },
+  listContentDesktop: { paddingHorizontal: 48 },
+
+  // Grid
+  gridRow: { flexDirection: 'row', gap: 16 },
+
+  // Card
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  cardWide: { flex: 1 },
+  cardImgWrap: { position: 'relative' },
+  cardImg: { width: '100%', height: 180, backgroundColor: '#f0f0f0' },
+  cardImgWide: { height: 200 },
+  cardHeart: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardHeartIcon: { fontSize: 16 },
+
+  // Card body
+  cardBody: { padding: 16 },
+  cardName: { fontSize: 16, fontWeight: '700', color: '#222', letterSpacing: -0.2, marginBottom: 4 },
+  cardDesc: { fontSize: 14, color: '#717171', lineHeight: 21, marginBottom: 12 },
+
+  // Availability tag
+  availabilityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  availabilityTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  availabilityTagText: { fontSize: 11, fontWeight: '700' },
+  availabilityDetail: { fontSize: 12, fontWeight: '500' },
+
+  cardMeta: { gap: 4 },
+  cardMetaLine: { fontSize: 13, color: '#717171' },
+
+  // CTA
+  cardCta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#ebebeb',
+  },
+  cardCtaText: { fontSize: 13, fontWeight: '600', color: '#E1306C' },
+  cardCtaArrow: { fontSize: 16, color: '#E1306C' },
+
+  // Empty state
   emptyState: { alignItems: 'center', paddingTop: 80, gap: 8 },
   emptyIcon: { fontSize: 40 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
-  emptyText: { fontSize: 14, color: '#888' },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#222' },
+  emptyText: { fontSize: 14, color: '#717171' },
+  // Bottom nav
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ebebeb',
+    paddingTop: 8,
+    paddingBottom: 24,
+  },
+  navItem: { alignItems: 'center', gap: 2 },
+  navIcon: { fontSize: 22 },
+  navLabel: { fontSize: 10, fontWeight: '600', color: '#b0b0b0' },
+  navLabelActive: { color: '#E1306C' },
 });
