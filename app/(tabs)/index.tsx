@@ -8,6 +8,7 @@ import {
   StyleSheet,
   RefreshControl,
   Image,
+  TextInput,
   useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -168,6 +169,7 @@ export default function DealsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [availableNowFilter, setAvailableNowFilter] = useState(false);
   const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const isDesktop = width >= 1024;
   const isTablet = width >= 640 && width < 1024;
@@ -212,7 +214,18 @@ export default function DealsScreen() {
   const sorted = [...deals].sort((a, b) => {
     return TAG_PRIORITY[getAvailability(a).tag] - TAG_PRIORITY[getAvailability(b).tag];
   });
-  const filtered = availableNowFilter ? sorted.filter(isAvailableNow) : sorted;
+  const searched = searchQuery.trim().length > 0
+    ? sorted.filter((d) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          d.restaurant_name.toLowerCase().includes(q) ||
+          d.deal_description.toLowerCase().includes(q) ||
+          d.neighborhood?.toLowerCase().includes(q) ||
+          d.category?.toLowerCase().includes(q)
+        );
+      })
+    : sorted;
+  const filtered = availableNowFilter ? searched.filter(isAvailableNow) : searched;
 
   function getRows(items: Deal[], cols: number): Deal[][] {
     const rows: Deal[][] = [];
@@ -236,7 +249,20 @@ export default function DealsScreen() {
       <View style={[styles.searchWrap, isDesktop && styles.searchWrapDesktop]}>
         <View style={[styles.searchBar, isDesktop && styles.searchBarDesktop]}>
           <Text style={styles.searchIcon}>🔍</Text>
-          <Text style={styles.searchPlaceholder}>Search restaurants or deals</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search restaurants or deals"
+            placeholderTextColor="#b0b0b0"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Text style={styles.searchClear}>✕</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -255,7 +281,11 @@ export default function DealsScreen() {
       {/* Section header */}
       <View style={[styles.sectionHeader, isDesktop && styles.sectionHeaderDesktop]}>
         <Text style={styles.sectionTitle}>
-          {availableNowFilter ? 'Available now' : 'Near you'}
+          {searchQuery.trim()
+            ? `Results for "${searchQuery.trim()}"`
+            : availableNowFilter
+            ? 'Available now'
+            : 'Near you'}
         </Text>
         <Text style={styles.sectionCount}>
           {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
@@ -274,13 +304,34 @@ export default function DealsScreen() {
       >
         {filtered.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🍽</Text>
+            <Text style={styles.emptyIcon}>
+              {searchQuery.trim() ? '🔍' : availableNowFilter ? '🌙' : '🍽'}
+            </Text>
             <Text style={styles.emptyTitle}>
-              {availableNowFilter ? 'No deals right now' : 'No deals found'}
+              {searchQuery.trim()
+                ? 'No matches found'
+                : availableNowFilter
+                ? 'No deals right now'
+                : 'No deals found'}
             </Text>
             <Text style={styles.emptyText}>
-              {availableNowFilter ? 'Nothing available at the moment. Tap "Available Now" to see all deals.' : 'Check back soon for new deals.'}
+              {searchQuery.trim()
+                ? `No restaurants or deals matching "${searchQuery.trim()}". Try a different search.`
+                : availableNowFilter
+                ? 'Happy hour is over for today — turn off the filter to browse upcoming deals and plan your next outing!'
+                : 'Check back soon for new deals.'}
             </Text>
+            {(searchQuery.trim() || availableNowFilter) && (
+              <TouchableOpacity
+                style={styles.emptyBtn}
+                onPress={() => {
+                  setSearchQuery('');
+                  setAvailableNowFilter(false);
+                }}
+              >
+                <Text style={styles.emptyBtnText}>Show all deals</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : columns === 1 ? (
           filtered.map((deal) => (
@@ -325,10 +376,6 @@ export default function DealsScreen() {
           <Text style={[styles.navLabel, styles.navLabelActive]}>Deals</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>📍</Text>
-          <Text style={styles.navLabel}>Map</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
           <Text style={styles.navIcon}>❤️</Text>
           <Text style={styles.navLabel}>Saved</Text>
         </TouchableOpacity>
@@ -357,7 +404,8 @@ const styles = StyleSheet.create({
   },
   searchBarDesktop: { maxWidth: 600 },
   searchIcon: { fontSize: 16, opacity: 0.5 },
-  searchPlaceholder: { fontSize: 14, color: '#b0b0b0' },
+  searchInput: { flex: 1, fontSize: 14, color: '#222', padding: 0 },
+  searchClear: { fontSize: 14, color: '#b0b0b0', paddingLeft: 8 },
 
   // Toggle (replaces filter pills)
   toggleWrap: {
@@ -476,7 +524,15 @@ const styles = StyleSheet.create({
   emptyState: { alignItems: 'center', paddingTop: 80, gap: 8 },
   emptyIcon: { fontSize: 40 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#222' },
-  emptyText: { fontSize: 14, color: '#717171' },
+  emptyText: { fontSize: 14, color: '#717171', textAlign: 'center', paddingHorizontal: 32, lineHeight: 20 },
+  emptyBtn: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: '#E1306C',
+  },
+  emptyBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   // Bottom nav
   bottomNav: {
     flexDirection: 'row',
