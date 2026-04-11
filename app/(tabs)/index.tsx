@@ -90,10 +90,8 @@ const TAG_STYLES = {
   not_available: { bg: '#f0f0f0', color: '#888' },
 };
 
-function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
+function DealCard({ deal, onPress, isWide }: {
   deal: Deal;
-  saved: boolean;
-  onToggleSave: () => void;
   onPress: () => void;
   isWide: boolean;
 }) {
@@ -115,17 +113,6 @@ function DealCard({ deal, saved, onToggleSave, onPress, isWide }: {
           source={{ uri: getDealImageUri(deal) }}
           style={[styles.cardImg, isWide && styles.cardImgWide]}
         />
-        <TouchableOpacity
-          style={styles.cardHeart}
-          onPress={(e) => {
-            e.stopPropagation();
-            onToggleSave();
-          }}
-        >
-          <Text style={styles.cardHeartIcon}>
-            {saved ? '❤️' : '🤍'}
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.cardBody}>
@@ -172,7 +159,6 @@ export default function DealsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [availableNowFilter, setAvailableNowFilter] = useState(false);
-  const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(true);
   const lastScrollY = useRef(0);
@@ -219,15 +205,6 @@ export default function DealsScreen() {
   function onRefresh() {
     setRefreshing(true);
     fetchDeals();
-  }
-
-  function toggleSave(dealId: number) {
-    setSavedDeals((prev) => {
-      const next = new Set(prev);
-      if (next.has(dealId)) next.delete(dealId);
-      else next.add(dealId);
-      return next;
-    });
   }
 
   // Sort by availability: available > upcoming > not available
@@ -368,8 +345,6 @@ export default function DealsScreen() {
             <DealCard
               key={deal.id}
               deal={deal}
-              saved={savedDeals.has(deal.id)}
-              onToggleSave={() => toggleSave(deal.id)}
               onPress={() => router.push(`/deal/${deal.id}` as any)}
               isWide={false}
             />
@@ -500,19 +475,6 @@ const styles = StyleSheet.create({
   cardImgWrap: { position: 'relative' },
   cardImg: { width: '100%', height: 180, backgroundColor: '#f0f0f0' },
   cardImgWide: { height: 200 },
-  cardHeart: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardHeartIcon: { fontSize: 16 },
-
   // Card body
   cardBody: { padding: 16, flex: 1 },
   cardName: { fontSize: 16, fontWeight: '700', color: '#222', letterSpacing: -0.2, marginBottom: 4 },

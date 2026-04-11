@@ -9,7 +9,7 @@ import {
   Linking,
   Image,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
 
@@ -39,8 +39,6 @@ export default function DealDetailScreen() {
   const router = useRouter();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saved, setSaved] = useState(false);
-
   useEffect(() => {
     async function fetchDeal() {
       const { data, error } = await supabase
@@ -84,25 +82,17 @@ export default function DealDetailScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: deal.restaurant_name }} />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Hero image */}
         <View style={styles.heroWrap}>
           <Image source={{ uri: imageUri }} style={styles.heroImg} />
-          <TouchableOpacity style={styles.heroBack} onPress={() => router.back()}>
-            <Text style={styles.heroBackText}>←</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.heroHeart} onPress={() => setSaved(!saved)}>
-            <Text style={styles.heroHeartIcon}>{saved ? '❤️' : '🤍'}</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Main content */}
         <View style={styles.body}>
-          {/* Name + verified */}
-          <View style={styles.titleRow}>
-            <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
-            <Text style={styles.verified}>✓ Verified</Text>
-          </View>
+          {/* Name */}
+          <Text style={styles.restaurantName}>{deal.restaurant_name}</Text>
 
           {ratingText != null ? (
             <Text style={styles.googleRating}>
@@ -142,7 +132,7 @@ export default function DealDetailScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Location</Text>
                 <Text style={styles.infoValue}>{deal.address}</Text>
-                {deal.neighborhood && deal.address !== deal.neighborhood && (
+                {deal.neighborhood && !deal.address?.toLowerCase().includes(deal.neighborhood.toLowerCase()) && (
                   <Text style={styles.infoSub}>{deal.neighborhood}</Text>
                 )}
               </View>
@@ -180,7 +170,7 @@ export default function DealDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { paddingBottom: 100, maxWidth: 720, width: '100%', alignSelf: 'center' },
+  content: { paddingBottom: 100, maxWidth: 960, width: '100%', alignSelf: 'center' },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
   errorText: { fontSize: 16, color: '#717171', marginBottom: 16 },
   backBtn: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#E1306C', borderRadius: 24 },
@@ -189,51 +179,9 @@ const styles = StyleSheet.create({
   // Hero image
   heroWrap: { position: 'relative' },
   heroImg: { width: '100%', height: 280, backgroundColor: '#f0f0f0' },
-  heroBack: {
-    position: 'absolute',
-    top: 52,
-    left: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  heroBackText: { fontSize: 18, color: '#222' },
-  heroHeart: {
-    position: 'absolute',
-    top: 52,
-    right: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  heroHeartIcon: { fontSize: 18 },
-
   // Body
   body: { padding: 20 },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  restaurantName: { fontSize: 24, fontWeight: '800', color: '#222', letterSpacing: -0.5 },
-  verified: { fontSize: 12, fontWeight: '600', color: '#008a05' },
+  restaurantName: { fontSize: 24, fontWeight: '800', color: '#222', letterSpacing: -0.5, marginBottom: 8 },
   googleRating: { fontSize: 15, fontWeight: '600', color: '#717171', marginBottom: 8 },
   googleRatingStar: { color: '#E1306C' },
   description: { fontSize: 16, color: '#717171', lineHeight: 24, marginBottom: 4 },
@@ -277,7 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    maxWidth: 720,
+    maxWidth: 960,
     width: '100%',
   },
   directionsBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
