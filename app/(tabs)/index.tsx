@@ -405,10 +405,6 @@ export default function DealsScreen() {
           <Text style={styles.navIcon}>🍽</Text>
           <Text style={[styles.navLabel, styles.navLabelActive]}>Deals</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>❤️</Text>
-          <Text style={styles.navLabel}>Saved</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -487,7 +483,7 @@ const styles = StyleSheet.create({
   listContentDesktop: { paddingHorizontal: 48 },
 
   // Grid
-  gridRow: { flexDirection: 'row', gap: 16 },
+  gridRow: { flexDirection: 'row', gap: 16, alignItems: 'stretch' },
 
   // Card
   card: {
@@ -518,7 +514,7 @@ const styles = StyleSheet.create({
   cardHeartIcon: { fontSize: 16 },
 
   // Card body
-  cardBody: { padding: 16 },
+  cardBody: { padding: 16, flex: 1 },
   cardName: { fontSize: 16, fontWeight: '700', color: '#222', letterSpacing: -0.2, marginBottom: 4 },
   cardDesc: { fontSize: 14, color: '#717171', lineHeight: 21, marginBottom: 12 },
 
