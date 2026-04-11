@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16, opacity: 0.5 },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     color: '#222',
     padding: 0,
     ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
