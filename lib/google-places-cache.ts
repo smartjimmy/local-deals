@@ -97,4 +97,7 @@ export const PLACES_CACHE: Record<number, PlacesCacheEntry> = {
   83: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHGcjoemdIv4gLUAFzJZ1x6KSqnwDxKNyPCw_T3tKRlhFcmRnvZQTaXEuDgzoofw3vfVKLyffmkYYw2fGK5Xp43VNI0aoAqQXw-xe2c50IvXAxaMCLRJImJmL51U35P7ObInGK3MxCDu5RC=s4800-w600' },
   84: { rating: 4.0, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFmQKh8LOZ1xHFqGm9sA6-_CTSmvo0vVuuUFx88kKX8DjILnFRGK4A5VZlhDkqur5U5Sh0py3eWqny2oTBB8AROhomkY7heSkgm5y7mOb-q9nkaxN-Cij0vzJDUw6D3WXzOlyzq2fJrDG_VUA=s4800-w600' },
   85: { rating: 4.6, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqF4tlnuy8geK-szfxcCrAQFf0xoZoZgfy6YiWSFZwk4BW0Hjnp6fHZExQ6IKjV0uEdNPrV2pYoh0LNQldf8TpDiE-VveFYFaxg=s4800-w600' },
+  // Burlingame expansion
+  86: { photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqEQb72Yd55lGBeIS9fGm6faBtDyjteqJC0-6cRfwCcRT9S1prXBHipj1XA8DKmAIgMfmk7GClp03WtEeM7-BK_tBXOJyevP6vU=s4800-w800', rating: 4 },
+  87: { photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNH-TIlH3INX0ONUDrKOpTsg9ifYWCtfjcP1vZS9T-FUBc6uvx23DMPJbrKwbho_Pq8TUFElTPLxUjjW7MxXuCmK8f6TVCefgAVBC-eLR7uniKvdsnc1uH3ott_OuH8pxrw8Sn_oUNy9uZeYVyU=s4800-w800', rating: 4 },
 };
