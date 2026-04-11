@@ -77,4 +77,17 @@ export const PLACES_CACHE: Record<number, PlacesCacheEntry> = {
   65: { rating: 4.5, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqHLReVNpZKjvfZBDbeOsf0sPV_ArVfhj3XSHURWzWt1xwurxc-exQ_d9-otzMkMqsRU_gwAccrXY_MBriRuN_XoF78sBft4-7Y=s4800-w600' },
   66: { rating: 4.2, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqHUNw0tjTTVQzHz9Fcf4Uuxd82HJaf-bsSAGpyrVUB0XfQd1OxxuvaVtcnRnJb3wTvTxxD3vJP1TyTm4ahyN2W1xAKKAkrWI6o=s4800-w600' },
   67: { rating: 4.3, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqFm2zZIu-HIU-An7GNLLlicNVOJTnhT435ePEpx2ijdpP_T7b2p5cAkgGgUXDy8peZYXuJ30YaZazjd1S6baUC5YwHuPig0VHA=s4800-w600' },
+  // New deals (batch 2)
+  68: { rating: 4.3, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNGt4xNUwOGksLf1SvsRHId9Tw7NgyxCgLIy4pw89xEh50bqTzEKz9p9jBuO4ZfdCwQMXpJ7FaZmLPpY72Voq6qWd8lqYXWCtUE7kGzUGt7FJC3uvuRi-b2hVvviwVOMqLFlKkJZcbf8BDn0=s4800-w600' },
+  69: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHGcjoemdIv4gLUAFzJZ1x6KSqnwDxKNyPCw_T3tKRlhFcmRnvZQTaXEuDgzoofw3vfVKLyffmkYYw2fGK5Xp43VNI0aoAqQXw-xe2c50IvXAxaMCLRJImJmL51U35P7ObInGK3MxCDu5RC=s4800-w600' },
+  70: { rating: 4.2, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNEufggkhTZW4tGEDbuTC_f_cbHCQvOuv7CJy1XTFzdc1teqkgOYABhaPC42_-pkPBNWMHEw81wt_J1q5hfCAdtqhV0H73_A3juggZ_SbA_-c_dEQx3RRmpM-DnkqC0A-0MLVS1To5JCCxOYTHo=s4800-w600' },
+  71: { rating: 4.1, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNF4yEHzTiN_C9nhdbmNU8WNq1kF7UMBdkUDgSVxxBBRI5iUKiUVuKnnWz8HvbHbsxVTY_3MSzh83VXQBChK2JOGTl0qX2onTWWY1wuo25u1fj_AKlUt7ut30rORv8Boi97trBBIHm3v6Aem70Q=s4800-w600' },
+  72: { rating: 4.5, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGgVrCGeOl8qHsk-9RhDAIlU56uBD4L2qya8OZSHS28SiVDed--s-Gyu0Uh5eMqC297bnqpLmh_2ev2qu5CDxiGhoSGFWc4d4M=s4800-w600' },
+  73: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGg53bvhpOlBhadVDQM7T9QWec5aLsuH6CNp23xquYs9Jib6LH4nrRJTjUo3PvzVoFVJYcDYIjc7HWBdyO_09fIEYYhRaxhlgM=s4800-w600' },
+  74: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNHRVbyNDNCsorm8g8bI60mdUEG0E_Azo_TOMadQl0-SeM6xmQd3NHykl9XjI64olWUTX2jRwR1jxBaV9SFAB04RaouMpLMCZ2SDOPJSeQMvhYHWx013XTrz67vCrceq_UwIkjhDtPkzDJV8b0g=s4800-w600' },
+  75: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNF-fWwaiNI3eJN6QrOhFpkJsisQjfw4g_-9tfcFqsnWxicxncR1iR_2cOwsHVtE5U5RDKBWQ9nGdDQjxD4-LxXdg4jjRHmpTx0je2Uc5YRB0U26Zx4lVAY-vxkzck6Qtkajf2LGikHeRLigkg=s4800-w600' },
+  76: { rating: 4.3, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqH3ARquLPpBbt5-BYbAtGilbE97x0yIfoq58RyZ9nVv8QJYBaG3gu2MbMg1blWTrGcKefXZIIxxMmw2mX7TE_qjCwx82BB6irU=s4800-w600' },
+  77: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/place-photos/AL8-SNFutRNFgrAOYhETpn7LnurZzWIhzRKKnfVkef9-VcumLGxDkIAgyzX6A4UzAkZhCex1fpeFdPPEOxSdiDhL0H8u_AjvrUjdchLrEq756-nGMMGZbK2fm--zeD6jBCmYx0qUrDbELyq8PFC9qQ=s4800-w600' },
+  78: { rating: 4.4, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGc0vYP0u4zhiwu4WHREs4_lGHc33AtP3gYZO-2KYFWOqFtiSJpp8fFWhfz9BiL4TfwKejG4eUe31JBP_33qEK36G-KFCqx4l4=s4800-w600' },
+  79: { rating: 4.5, photoUrl: 'https://lh3.googleusercontent.com/places/ANXAkqGgVrCGeOl8qHsk-9RhDAIlU56uBD4L2qya8OZSHS28SiVDed--s-Gyu0Uh5eMqC297bnqpLmh_2ev2qu5CDxiGhoSGFWc4d4M=s4800-w600' },
 };
