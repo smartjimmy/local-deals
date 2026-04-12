@@ -599,8 +599,8 @@ const styles = StyleSheet.create({
   },
   toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center' },
   toggleTextActive: { color: '#E1306C' },
-  regionBtnActive: { backgroundColor: '#222', borderColor: '#222' },
-  regionTextActive: { color: '#fff' },
+  regionBtnActive: { backgroundColor: '#fff0f5', borderColor: '#f5c0d5' },
+  regionTextActive: { color: '#E1306C', fontWeight: '700' },
   toggleDivider: { width: 1, backgroundColor: '#ebebeb', marginVertical: 4 },
 
   // Section
