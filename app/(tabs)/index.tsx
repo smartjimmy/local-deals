@@ -574,6 +574,7 @@ const styles = StyleSheet.create({
   // Toggle (replaces filter pills)
   toggleWrap: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -589,12 +590,14 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#ebebeb',
     backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   toggleBtnActive: {
     backgroundColor: '#fff0f5',
     borderColor: '#f5c0d5',
   },
-  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171' },
+  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center' },
   toggleTextActive: { color: '#E1306C' },
   regionBtnActive: { backgroundColor: '#222', borderColor: '#222' },
   regionTextActive: { color: '#fff' },
