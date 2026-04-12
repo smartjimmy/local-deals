@@ -18,6 +18,7 @@ import {
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
+import { useAuth } from '../../lib/auth';
 
 const JS_DAY_TO_ABBR: Record<number, string> = {
   0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat',
@@ -90,10 +91,13 @@ const TAG_STYLES = {
   not_available: { bg: '#f0f0f0', color: '#888' },
 };
 
-function DealCard({ deal, onPress, isWide }: {
+function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn }: {
   deal: Deal;
   onPress: () => void;
   isWide: boolean;
+  isSaved?: boolean;
+  onToggleSave?: () => void;
+  isSignedIn?: boolean;
 }) {
   const availability = getAvailability(deal);
   const ratingText = formatGoogleRating(deal.id);
@@ -113,6 +117,15 @@ function DealCard({ deal, onPress, isWide }: {
           source={{ uri: getDealImageUri(deal) }}
           style={[styles.cardImg, isWide && styles.cardImgWide]}
         />
+        {isSignedIn && (
+          <TouchableOpacity
+            style={styles.heartBtn}
+            onPress={(e) => { e.stopPropagation(); onToggleSave?.(); }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.heartIcon}>{isSaved ? '❤️' : '🤍'}</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.cardBody}>
@@ -155,12 +168,16 @@ function DealCard({ deal, onPress, isWide }: {
 export default function DealsScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { user, signInWithGoogle, signOut } = useAuth();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [availableNowFilter, setAvailableNowFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [region, setRegion] = useState<'South Bay' | 'OC'>('South Bay');
+  const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [savedFilter, setSavedFilter] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const lastScrollY = useRef(0);
   const filterHeight = useRef(new Animated.Value(1)).current;
@@ -202,6 +219,33 @@ export default function DealsScreen() {
   useEffect(() => {
     fetchDeals();
   }, []);
+
+  // Fetch saved deals when user signs in
+  useEffect(() => {
+    if (!user) {
+      setSavedDeals(new Set());
+      setSavedFilter(false);
+      return;
+    }
+    supabase
+      .from('saved_deals')
+      .select('deal_id')
+      .eq('user_id', user.id)
+      .then(({ data }) => {
+        if (data) setSavedDeals(new Set(data.map((r: any) => r.deal_id)));
+      });
+  }, [user]);
+
+  async function toggleSaveDeal(dealId: number) {
+    if (!user) return;
+    if (savedDeals.has(dealId)) {
+      setSavedDeals((prev) => { const next = new Set(prev); next.delete(dealId); return next; });
+      await supabase.from('saved_deals').delete().eq('user_id', user.id).eq('deal_id', dealId);
+    } else {
+      setSavedDeals((prev) => new Set(prev).add(dealId));
+      await supabase.from('saved_deals').insert({ user_id: user.id, deal_id: dealId });
+    }
+  }
 
   function onRefresh() {
     setRefreshing(true);
@@ -252,7 +296,8 @@ export default function DealsScreen() {
         );
       })
     : sorted;
-  const filtered = availableNowFilter ? searched.filter(isAvailableNow) : searched;
+  const afterAvailable = availableNowFilter ? searched.filter(isAvailableNow) : searched;
+  const filtered = savedFilter ? afterAvailable.filter((d) => savedDeals.has(d.id)) : afterAvailable;
 
   function getRows(items: Deal[], cols: number): Deal[][] {
     const rows: Deal[][] = [];
@@ -272,25 +317,53 @@ export default function DealsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Search bar */}
+      {/* Search bar + profile */}
       <View style={[styles.searchWrap, isDesktop && styles.searchWrapDesktop]}>
-        <View style={[styles.searchBar, isDesktop && styles.searchBarDesktop]}>
-          <Text style={styles.searchIcon}>🔍</Text>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search restaurants or deals"
-            placeholderTextColor="#b0b0b0"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-            autoCorrect={false}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={styles.searchClear}>✕</Text>
+        <View style={styles.searchRow}>
+          <View style={[styles.searchBar, isDesktop && styles.searchBarDesktop, { flex: 1 }]}>
+            <Text style={styles.searchIcon}>🔍</Text>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search restaurants or deals"
+              placeholderTextColor="#b0b0b0"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              autoCorrect={false}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Text style={styles.searchClear}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {user ? (
+            <TouchableOpacity
+              style={styles.profileBtn}
+              onPress={() => setShowProfileMenu(!showProfileMenu)}
+            >
+              <Text style={styles.profileInitial}>
+                {(user.email?.[0] || 'U').toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.signInBtn} onPress={signInWithGoogle}>
+              <Text style={styles.signInText}>Sign in</Text>
             </TouchableOpacity>
           )}
         </View>
+        {/* Profile dropdown */}
+        {showProfileMenu && user && (
+          <View style={styles.profileMenu}>
+            <Text style={styles.profileEmail}>{user.email}</Text>
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={() => { signOut(); setShowProfileMenu(false); }}
+            >
+              <Text style={styles.profileMenuText}>Sign out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Region + Available Now toggles — collapses on scroll */}
@@ -331,6 +404,17 @@ export default function DealsScreen() {
             Available Now
           </Text>
         </TouchableOpacity>
+
+        {user && (
+          <TouchableOpacity
+            style={[styles.toggleBtn, savedFilter && styles.toggleBtnActive]}
+            onPress={() => setSavedFilter(!savedFilter)}
+          >
+            <Text style={[styles.toggleText, savedFilter && styles.toggleTextActive]}>
+              ❤️ Saved
+            </Text>
+          </TouchableOpacity>
+        )}
       </Animated.View>
 
       {/* Deal cards */}
@@ -396,6 +480,9 @@ export default function DealsScreen() {
               deal={deal}
               onPress={() => router.push(`/deal/${deal.id}` as any)}
               isWide={false}
+              isSaved={savedDeals.has(deal.id)}
+              onToggleSave={() => toggleSaveDeal(deal.id)}
+              isSignedIn={!!user}
             />
           ))
         ) : (
@@ -407,6 +494,9 @@ export default function DealsScreen() {
                   deal={deal}
                   onPress={() => router.push(`/deal/${deal.id}` as any)}
                   isWide={true}
+                  isSaved={savedDeals.has(deal.id)}
+                  onToggleSave={() => toggleSaveDeal(deal.id)}
+                  isSignedIn={!!user}
                 />
               ))}
               {row.length < columns &&
@@ -437,7 +527,7 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
 
   // Search
-  searchWrap: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12, backgroundColor: '#fff' },
+  searchWrap: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, backgroundColor: '#fff' },
   searchWrapDesktop: { paddingHorizontal: 48 },
   searchBar: {
     flexDirection: 'row',
@@ -460,6 +550,26 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? { outlineStyle: 'none' } : {}),
   } as any,
   searchClear: { fontSize: 14, color: '#b0b0b0', paddingLeft: 8 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  profileBtn: {
+    width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1306C',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  profileInitial: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  signInBtn: {
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
+    borderWidth: 1.5, borderColor: '#E1306C',
+  },
+  signInText: { fontSize: 13, fontWeight: '600', color: '#E1306C' },
+  profileMenu: {
+    marginTop: 8, backgroundColor: '#fff', borderRadius: 12,
+    borderWidth: 1, borderColor: '#ebebeb', padding: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, shadowRadius: 8, elevation: 4,
+  },
+  profileEmail: { fontSize: 13, color: '#717171', marginBottom: 8 },
+  profileMenuItem: { paddingVertical: 6 },
+  profileMenuText: { fontSize: 14, fontWeight: '600', color: '#E1306C' },
 
   // Toggle (replaces filter pills)
   toggleWrap: {
@@ -525,6 +635,15 @@ const styles = StyleSheet.create({
   cardImgWrap: { position: 'relative' },
   cardImg: { width: '100%', height: 180, backgroundColor: '#f0f0f0' },
   cardImgWide: { height: 200 },
+  heartBtn: {
+    position: 'absolute', top: 12, right: 12,
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12, shadowRadius: 3,
+  },
+  heartIcon: { fontSize: 16 },
   // Card body
   cardBody: { padding: 16, flex: 1 },
   cardName: { fontSize: 16, fontWeight: '700', color: '#222', letterSpacing: -0.2, marginBottom: 4 },
