@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
 import { useAuth } from '../../lib/auth';
+import { useLocation, getDistanceMiles, formatDistance } from '../../lib/useLocation';
 
 const JS_DAY_TO_ABBR: Record<number, string> = {
   0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat',
@@ -91,13 +92,14 @@ const TAG_STYLES = {
   not_available: { bg: '#f0f0f0', color: '#888' },
 };
 
-function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn }: {
+function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn, distance }: {
   deal: Deal;
   onPress: () => void;
   isWide: boolean;
   isSaved?: boolean;
   onToggleSave?: () => void;
   isSignedIn?: boolean;
+  distance?: number | null;
 }) {
   const availability = getAvailability(deal);
   const ratingText = formatGoogleRating(deal.id);
@@ -145,6 +147,9 @@ function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn }: 
         <View style={styles.cardMeta}>
           <Text style={styles.cardMetaLine}>
             {`📍 ${deal.neighborhood}`}
+            {distance != null ? (
+              <Text style={styles.distanceBadge}>{`  ·  ${formatDistance(distance)}`}</Text>
+            ) : null}
             {ratingText != null ? (
               <Text>
                 {'  ·  '}
@@ -169,6 +174,7 @@ export default function DealsScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { user, signInWithGoogle, signOut } = useAuth();
+  const { location: userLocation } = useLocation();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -252,34 +258,71 @@ export default function DealsScreen() {
     fetchDeals();
   }
 
-  // Region filter
-  const OC_NEIGHBORHOODS = ['irvine', 'tustin', 'costa mesa', 'newport beach', 'newport'];
+  // Region filter — positive matching for both regions so stray cities don't bleed in
+  const SOUTH_BAY_NEIGHBORHOODS = [
+    'palo alto', 'menlo park', 'redwood city', 'mountain view', 'sunnyvale',
+    'san jose', 'santa clara', 'cupertino', 'los altos', 'east palo alto',
+    'atherton', 'portola valley', 'woodside', 'foster city', 'san mateo',
+    'burlingame', 'millbrae', 'belmont', 'san carlos',
+  ];
+  const OC_NEIGHBORHOODS = [
+    'irvine', 'tustin', 'costa mesa', 'newport beach', 'newport', 'anaheim',
+    'santa ana', 'huntington beach', 'laguna', 'fullerton', 'orange', 'brea',
+    'yorba linda', 'mission viejo', 'lake forest', 'aliso viejo',
+    // LA South Bay cities go under OC tab for now
+    'gardena', 'redondo beach', 'torrance', 'hawthorne', 'inglewood',
+    'manhattan beach', 'hermosa beach', 'el segundo', 'compton', 'carson',
+    'long beach', 'lakewood',
+  ];
   const regionDeals = deals.filter((d) => {
     const n = (d.neighborhood || '').toLowerCase();
-    const isOC = OC_NEIGHBORHOODS.some((oc) => n.includes(oc));
-    return region === 'OC' ? isOC : !isOC;
+    if (region === 'South Bay') {
+      return SOUTH_BAY_NEIGHBORHOODS.some((nb) => n.includes(nb));
+    } else {
+      return OC_NEIGHBORHOODS.some((nb) => n.includes(nb));
+    }
   });
 
-  // Sort by availability: available > upcoming > not available
-  // Within not_available: ended today (most recently) > other days
+  // Compute distance from user to each deal
+  const distanceMap = useMemo(() => {
+    const map = new Map<number, number>();
+    if (!userLocation) return map;
+    for (const deal of regionDeals) {
+      if (deal.latitude != null && deal.longitude != null) {
+        map.set(
+          deal.id,
+          getDistanceMiles(userLocation.latitude, userLocation.longitude, deal.latitude, deal.longitude),
+        );
+      }
+    }
+    return map;
+  }, [regionDeals, userLocation]);
+
+  // Sort: primary by availability, secondary by distance (if location available)
   const TAG_PRIORITY = { available: 0, upcoming: 1, not_available: 2 };
   const sorted = [...regionDeals].sort((a, b) => {
     const aTag = getAvailability(a).tag;
     const bTag = getAvailability(b).tag;
     const primary = TAG_PRIORITY[aTag] - TAG_PRIORITY[bTag];
     if (primary !== 0) return primary;
-    // Sub-sort not_available: deals that ended today first (by how recently they ended)
+
+    // Within the same availability group, sort by distance if we have location
+    if (userLocation) {
+      const aDist = distanceMap.get(a.id) ?? Infinity;
+      const bDist = distanceMap.get(b.id) ?? Infinity;
+      if (aDist !== bDist) return aDist - bDist;
+    }
+
+    // Fallback sub-sorts for when no location or same distance
     if (aTag === 'not_available') {
       const aEndedToday = getAvailability(a).detail.startsWith('Ended');
       const bEndedToday = getAvailability(b).detail.startsWith('Ended');
       if (aEndedToday && !bEndedToday) return -1;
       if (!aEndedToday && bEndedToday) return 1;
-      // Both ended today — sort by end time (most recent first)
       if (aEndedToday && bEndedToday && a.end_time && b.end_time) {
         return b.end_time.localeCompare(a.end_time);
       }
     }
-    // Sub-sort upcoming: soonest first
     if (aTag === 'upcoming' && a.start_time && b.start_time) {
       return a.start_time.localeCompare(b.start_time);
     }
@@ -436,7 +479,9 @@ export default function DealsScreen() {
               ? `Results for "${searchQuery.trim()}"`
               : availableNowFilter
               ? 'Available now'
-              : 'Near you'}
+              : userLocation
+              ? 'Near you'
+              : 'All deals'}
           </Text>
           <Text style={styles.sectionCount}>
             {filtered.length} deal{filtered.length !== 1 ? 's' : ''}
@@ -483,6 +528,7 @@ export default function DealsScreen() {
               isSaved={savedDeals.has(deal.id)}
               onToggleSave={() => toggleSaveDeal(deal.id)}
               isSignedIn={!!user}
+              distance={distanceMap.get(deal.id) ?? null}
             />
           ))
         ) : (
@@ -497,6 +543,7 @@ export default function DealsScreen() {
                   isSaved={savedDeals.has(deal.id)}
                   onToggleSave={() => toggleSaveDeal(deal.id)}
                   isSignedIn={!!user}
+                  distance={distanceMap.get(deal.id) ?? null}
                 />
               ))}
               {row.length < columns &&
@@ -670,6 +717,7 @@ const styles = StyleSheet.create({
   cardMeta: { gap: 4 },
   cardMetaLine: { fontSize: 13, color: '#717171' },
   cardRatingStar: { color: '#E1306C' },
+  distanceBadge: { color: '#6366f1', fontWeight: '600' as const },
 
   // CTA
   cardCta: {
