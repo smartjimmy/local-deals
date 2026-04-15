@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
+import * as ExpoLocation from 'expo-location';
 
 export type UserLocation = {
   latitude: number;
@@ -15,46 +16,68 @@ type LocationState = {
 };
 
 /**
- * Hook that requests the user's location via the browser Geolocation API.
- * Returns { location, error, loading, refresh }.
- *
- * On native platforms this is a no-op for now (returns null) — swap in
- * expo-location when you ship iOS / Android.
+ * Cross-platform location hook.
+ * - Web: uses browser Geolocation API
+ * - iOS/Android: uses expo-location
  */
 export function useLocation(): LocationState {
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const requestLocation = () => {
-    // Only works on web for now
-    if (Platform.OS !== 'web' || typeof navigator === 'undefined' || !navigator.geolocation) {
-      setError('Geolocation not supported');
-      setLoading(false);
-      return;
-    }
-
+  const requestLocation = async () => {
     setLoading(true);
     setError(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+    if (Platform.OS === 'web') {
+      // Web: use browser Geolocation API
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        setError('Geolocation not supported');
+        setLoading(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLoading(false);
+        },
+        (err) => {
+          setError(err.message);
+          setLoading(false);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 5 * 60 * 1000,
+        },
+      );
+    } else {
+      // Native: use expo-location
+      try {
+        const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setError('Location permission denied');
+          setLoading(false);
+          return;
+        }
+
+        const pos = await ExpoLocation.getCurrentPositionAsync({
+          accuracy: ExpoLocation.Accuracy.Balanced,
         });
+        setLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      } catch (err: any) {
+        setError(err.message || 'Failed to get location');
+      } finally {
         setLoading(false);
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
-      },
-      {
-        enableHighAccuracy: false, // faster, good enough for sorting
-        timeout: 10000,
-        maximumAge: 5 * 60 * 1000, // cache for 5 min
-      },
-    );
+      }
+    }
   };
 
   useEffect(() => {
