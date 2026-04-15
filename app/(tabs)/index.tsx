@@ -14,6 +14,7 @@ import {
   Platform,
   type NativeSyntheticEvent,
   type NativeScrollEvent,
+  SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -359,7 +360,7 @@ export default function DealsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Search bar + profile */}
       <View style={[styles.searchWrap, isDesktop && styles.searchWrapDesktop]}>
         <View style={styles.searchRow}>
@@ -565,7 +566,7 @@ export default function DealsScreen() {
           <Text style={[styles.navLabel, styles.navLabelActive]}>Deals</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
