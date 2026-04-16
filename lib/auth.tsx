@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { supabase } from './supabase';
 import type { Session, User } from '@supabase/supabase-js';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
 
 type AuthState = {
   user: User | null;
@@ -40,12 +43,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
-      },
-    });
+    if (Platform.OS === 'web') {
+      // Web: standard OAuth redirect
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+        },
+      });
+    } else {
+      // Native: open auth in in-app browser, capture redirect
+      const redirectUri = makeRedirectUri();
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUri,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error || !data?.url) {
+        console.error('OAuth error:', error?.message);
+        return;
+      }
+
+      // Open the auth URL in an in-app browser
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri);
+
+      if (result.type === 'success' && result.url) {
+        // Extract the tokens from the redirect URL
+        const url = new URL(result.url);
+
+        // Supabase returns tokens in the fragment (hash)
+        const params = new URLSearchParams(
+          url.hash ? url.hash.substring(1) : url.search.substring(1)
+        );
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (accessToken && refreshToken) {
+          await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+        }
+      }
+    }
   };
 
   const signOut = async () => {
