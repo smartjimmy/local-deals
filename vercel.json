@@ -1,1 +1,14 @@
-{"rewrites":[{"source":"/privacy","destination":"/privacy.html"},{"source":"/deal/:id","destination":"/deal/[id].html"}]}
+{
+  "rewrites": [
+    { "source": "/privacy", "destination": "/privacy.html" },
+    {
+      "source": "/deal/:id",
+      "has": [{ "type": "query", "key": "r" }],
+      "destination": "/deal/[id].html"
+    },
+    {
+      "source": "/deal/:id",
+      "destination": "/api/deal/:id"
+    }
+  ]
+}
