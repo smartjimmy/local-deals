@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { PLACES_CACHE } from '../../lib/google-places-cache';
+
 const supabase = createClient(
   'https://yzkaaxazsakuqcpeesry.supabase.co',
   'sb_publishable_jzL5jU9PKmTAiCR33SE_Cg_p9cHhpD-'
@@ -31,9 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.redirect(302, '/');
   }
 
-  const imageUrl = `https://local-deals-xi.vercel.app/api/og-image/${id}`;
-  const title = `${deal.restaurant_name} — ${deal.deal_description}`;
-  const description = [deal.address, deal.neighborhood].filter(Boolean).join(' · ');
+  const cached = PLACES_CACHE[id];
+  const imageUrl = cached?.photoUrl || 'https://local-deals-xi.vercel.app/app-icon.png';
+  const title = deal.restaurant_name;
+  const description = deal.deal_description;
   const appUrl = `https://local-deals-xi.vercel.app/deal/${id}?r=1`;
 
   const html = `<!DOCTYPE html>
@@ -41,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${esc(title)}</title>
+  <title>${esc(title)} — Local Deals</title>
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -49,8 +52,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://local-deals-xi.vercel.app/deal/${id}" />
 
   <!-- Twitter -->
@@ -58,6 +59,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <meta name="twitter:title" content="${esc(title)}" />
   <meta name="twitter:description" content="${esc(description)}" />
   <meta name="twitter:image" content="${esc(imageUrl)}" />
+
+  <!-- Favicon / touch icon -->
+  <link rel="icon" href="https://local-deals-xi.vercel.app/app-icon.png" />
+  <link rel="apple-touch-icon" href="https://local-deals-xi.vercel.app/app-icon.png" />
 
   <!-- Redirect real users to the app -->
   <meta http-equiv="refresh" content="0;url=${appUrl}" />
