@@ -128,7 +128,15 @@ export default function DealDetailScreen() {
         <View style={styles.heroWrap}>
           <Image source={{ uri: imageUri }} style={styles.heroImg} />
           <TouchableOpacity style={styles.shareBtn} onPress={shareDeal} activeOpacity={0.85}>
-            <Text style={styles.shareBtnIcon}>↗</Text>
+            {/* iOS-style share icon: box with upward arrow */}
+            <View style={styles.shareIconWrap}>
+              <View style={styles.shareArrowStem} />
+              <View style={styles.shareArrowHead}>
+                <View style={styles.shareArrowLeft} />
+                <View style={styles.shareArrowRight} />
+              </View>
+              <View style={styles.shareBox} />
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -208,13 +216,6 @@ export default function DealDetailScreen() {
                 <Text style={styles.callBtnText}>📞 Call</Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity
-              style={styles.shareBottomBtn}
-              onPress={shareDeal}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.callBtnText}>↗ Share</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.directionsBtn}
               onPress={() => openDirections(deal.restaurant_name, deal.address)}
@@ -313,15 +314,55 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  shareBtnIcon: { fontSize: 20, color: '#222', marginTop: -1, marginLeft: 1 },
-  shareBottomBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 16,
+  shareIconWrap: {
+    width: 20,
+    height: 20,
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E1306C',
-    width: 100,
+    justifyContent: 'flex-start',
+  },
+  shareArrowStem: {
+    width: 2,
+    height: 12,
+    backgroundColor: '#333',
+    position: 'absolute',
+    top: 0,
+    zIndex: 1,
+  },
+  shareArrowHead: {
+    position: 'absolute',
+    top: 0,
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  shareArrowLeft: {
+    width: 7,
+    height: 2,
+    backgroundColor: '#333',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    transform: [{ rotate: '45deg' }],
+    transformOrigin: 'right center',
+  },
+  shareArrowRight: {
+    width: 7,
+    height: 2,
+    backgroundColor: '#333',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    transform: [{ rotate: '-45deg' }],
+    transformOrigin: 'left center',
+  },
+  shareBox: {
+    width: 14,
+    height: 10,
+    borderWidth: 2,
+    borderTopWidth: 0,
+    borderColor: '#333',
+    borderRadius: 2,
+    position: 'absolute',
+    bottom: 0,
   },
   directionsBtn: {
     flex: 1,
