@@ -12,9 +12,9 @@ export default function TabLayout() {
           backgroundColor: '#fff',
           borderTopColor: '#ebebeb',
           borderTopWidth: 1,
-          height: 85,
-          paddingTop: 8,
-          paddingBottom: 28,
+          height: 90,
+          paddingTop: 10,
+          paddingBottom: 34,
         },
         tabBarActiveTintColor: '#E1306C',
         tabBarInactiveTintColor: '#999',
@@ -40,7 +40,7 @@ export default function TabLayout() {
           title: 'Saved',
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 22 }}>{focused ? '❤️' : '🤍'}</Text>
+            <Text style={{ fontSize: 22 }}>{focused ? '❤️' : '🩶'}</Text>
           ),
         }}
       />

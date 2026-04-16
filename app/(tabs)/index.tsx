@@ -134,7 +134,7 @@ function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn, on
           }}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.heartIcon}>{isSaved ? '❤️' : '🤍'}</Text>
+          <Text style={styles.heartIcon}>{isSaved ? '❤️' : '🩶'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -573,13 +573,6 @@ export default function DealsScreen() {
         <View style={{ height: 80 }} />
       </ScrollView>
 
-      {/* Bottom nav */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🍽</Text>
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Deals</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -761,19 +754,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#E1306C',
   },
   emptyBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  // Bottom nav
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#ebebeb',
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
-  navItem: { alignItems: 'center', gap: 2 },
-  navIcon: { fontSize: 22 },
-  navLabel: { fontSize: 10, fontWeight: '600', color: '#b0b0b0' },
-  navLabelActive: { color: '#E1306C' },
 });
