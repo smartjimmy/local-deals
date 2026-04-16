@@ -17,5 +17,14 @@
     "production": {
       "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "jimmyjameskang@gmail.com",
+        "ascAppId": "6740653390",
+        "appleTeamId": "MPW6J83KTE"
+      }
+    }
   }
 }
