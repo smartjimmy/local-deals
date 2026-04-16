@@ -105,16 +105,14 @@ export default function DealDetailScreen() {
   const dealUrl = `https://local-deals-xi.vercel.app/deal/${deal.id}`;
 
   async function shareDeal() {
-    const message = `${deal.restaurant_name} — ${deal.deal_description}`;
     try {
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share({ title: deal.restaurant_name, text: message, url: dealUrl });
+        await navigator.share({ title: deal.restaurant_name, url: dealUrl });
       } else if (Platform.OS === 'web') {
-        // Fallback: copy to clipboard
-        await navigator.clipboard?.writeText(`${message}\n${dealUrl}`);
+        await navigator.clipboard?.writeText(dealUrl);
         alert('Link copied to clipboard!');
       } else {
-        await Share.share({ message: `${message}\n${dealUrl}` });
+        await Share.share({ message: dealUrl });
       }
     } catch (err) {
       // User cancelled share — ignore

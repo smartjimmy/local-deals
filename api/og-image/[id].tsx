@@ -83,22 +83,25 @@ export default async function handler(req: Request) {
             gap: '8px',
           }}
         >
-          {/* App branding pill */}
+          {/* App branding: icon + name */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '10px',
               marginBottom: '4px',
             }}
           >
+            <img
+              src="https://local-deals-xi.vercel.app/app-icon.png"
+              width="36"
+              height="36"
+              style={{ borderRadius: '8px' }}
+            />
             <div
               style={{
-                backgroundColor: '#E1306C',
-                borderRadius: '16px',
-                padding: '4px 14px',
-                fontSize: '20px',
-                color: '#fff',
+                fontSize: '22px',
+                color: 'rgba(255,255,255,0.8)',
                 fontWeight: 700,
                 display: 'flex',
               }}
