@@ -177,13 +177,15 @@ export default function DealDetailScreen() {
       {deal.address ? (
         <View style={styles.bottomBar}>
           <View style={styles.bottomBtnRow}>
-            <TouchableOpacity
-              style={styles.callBtn}
-              onPress={() => callRestaurant(deal.phone, deal.restaurant_name, deal.neighborhood || '')}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.callBtnText}>📞 Call</Text>
-            </TouchableOpacity>
+            {deal.phone ? (
+              <TouchableOpacity
+                style={styles.callBtn}
+                onPress={() => callRestaurant(deal.phone, deal.restaurant_name, deal.neighborhood || '')}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.callBtnText}>📞 Call</Text>
+              </TouchableOpacity>
+            ) : null}
             <TouchableOpacity
               style={styles.directionsBtn}
               onPress={() => openDirections(deal.restaurant_name, deal.address)}
