@@ -440,6 +440,8 @@ export default function DealsScreen() {
           maxHeight: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 52] }),
           opacity: filterHeight,
           overflow: 'hidden' as const,
+          marginBottom: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 0] }),
+          borderBottomWidth: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 1] }),
         },
       ]}>
         {/* Region selector */}
@@ -634,7 +636,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     gap: 8,
-    borderBottomWidth: 1,
     borderBottomColor: '#ebebeb',
   },
   toggleWrapDesktop: { paddingHorizontal: 48 },
