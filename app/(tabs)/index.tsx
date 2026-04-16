@@ -191,6 +191,7 @@ export default function DealsScreen() {
   const [region, setRegion] = useState<'South Bay' | 'OC'>('South Bay');
   const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const lastScrollY = useRef(0);
   const filterHeight = useRef(new Animated.Value(1)).current;
@@ -261,9 +262,7 @@ export default function DealsScreen() {
 
   function promptSignIn() {
     if (Platform.OS === 'web') {
-      if (confirm('Sign in to save deals and get personalized recommendations?')) {
-        signInWithGoogle();
-      }
+      setShowSignInPrompt(true);
     } else {
       Alert.alert(
         'Save your favorite deals',
@@ -571,6 +570,35 @@ export default function DealsScreen() {
         <View style={{ height: 60 }} />
       </ScrollView>
 
+      {/* Sign-in prompt modal (replaces confirm() which Safari throttles) */}
+      {showSignInPrompt && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={{ fontSize: 40, marginBottom: 12 }}>❤️</Text>
+            <Text style={styles.modalTitle}>Save your favorite deals</Text>
+            <Text style={styles.modalMessage}>
+              Sign in to save deals, get personalized recommendations, and access your favorites across all your devices.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalBtnCancel}
+                onPress={() => setShowSignInPrompt(false)}
+              >
+                <Text style={styles.modalBtnCancelText}>Not now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalBtnAction}
+                onPress={() => {
+                  setShowSignInPrompt(false);
+                  signInWithGoogle();
+                }}
+              >
+                <Text style={styles.modalBtnActionText}>Sign in</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -751,4 +779,71 @@ const styles = StyleSheet.create({
     backgroundColor: '#E1306C',
   },
   emptyBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+
+  // Sign-in prompt modal
+  modalOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+  },
+  modalBox: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 32,
+    marginHorizontal: 32,
+    alignItems: 'center',
+    maxWidth: 340,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a2e',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#717171',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalBtnCancel: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  modalBtnCancelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#717171',
+  },
+  modalBtnAction: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 28,
+    backgroundColor: '#E1306C',
+    alignItems: 'center',
+  },
+  modalBtnActionText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+  },
 });
