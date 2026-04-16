@@ -12,6 +12,7 @@ import {
   useWindowDimensions,
   Animated,
   Platform,
+  Alert,
   type NativeSyntheticEvent,
   type NativeScrollEvent,
   SafeAreaView,
@@ -93,13 +94,14 @@ const TAG_STYLES = {
   not_available: { bg: '#f0f0f0', color: '#888' },
 };
 
-function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn, distance }: {
+function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn, onSignInPrompt, distance }: {
   deal: Deal;
   onPress: () => void;
   isWide: boolean;
   isSaved?: boolean;
   onToggleSave?: () => void;
   isSignedIn?: boolean;
+  onSignInPrompt?: () => void;
   distance?: number | null;
 }) {
   const availability = getAvailability(deal);
@@ -120,15 +122,20 @@ function DealCard({ deal, onPress, isWide, isSaved, onToggleSave, isSignedIn, di
           source={{ uri: getDealImageUri(deal) }}
           style={[styles.cardImg, isWide && styles.cardImgWide]}
         />
-        {isSignedIn && (
-          <TouchableOpacity
-            style={styles.heartBtn}
-            onPress={(e) => { e.stopPropagation(); onToggleSave?.(); }}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Text style={styles.heartIcon}>{isSaved ? '❤️' : '🤍'}</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.heartBtn}
+          onPress={(e) => {
+            e.stopPropagation();
+            if (!isSignedIn) {
+              onSignInPrompt?.();
+            } else {
+              onToggleSave?.();
+            }
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text style={styles.heartIcon}>{isSaved ? '❤️' : '🤍'}</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.cardBody}>
@@ -184,7 +191,6 @@ export default function DealsScreen() {
   const [region, setRegion] = useState<'South Bay' | 'OC'>('South Bay');
   const [savedDeals, setSavedDeals] = useState<Set<number>>(new Set());
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [savedFilter, setSavedFilter] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const lastScrollY = useRef(0);
   const filterHeight = useRef(new Animated.Value(1)).current;
@@ -231,7 +237,6 @@ export default function DealsScreen() {
   useEffect(() => {
     if (!user) {
       setSavedDeals(new Set());
-      setSavedFilter(false);
       return;
     }
     supabase
@@ -251,6 +256,23 @@ export default function DealsScreen() {
     } else {
       setSavedDeals((prev) => new Set(prev).add(dealId));
       await supabase.from('saved_deals').insert({ user_id: user.id, deal_id: dealId });
+    }
+  }
+
+  function promptSignIn() {
+    if (Platform.OS === 'web') {
+      if (confirm('Sign in to save deals and get personalized recommendations?')) {
+        signInWithGoogle();
+      }
+    } else {
+      Alert.alert(
+        'Save your favorite deals',
+        'Sign in to save deals, get personalized recommendations, and access your favorites across all your devices.',
+        [
+          { text: 'Not now', style: 'cancel' },
+          { text: 'Sign in', onPress: signInWithGoogle },
+        ]
+      );
     }
   }
 
@@ -341,7 +363,7 @@ export default function DealsScreen() {
       })
     : sorted;
   const afterAvailable = availableNowFilter ? searched.filter(isAvailableNow) : searched;
-  const filtered = savedFilter ? afterAvailable.filter((d) => savedDeals.has(d.id)) : afterAvailable;
+  const filtered = afterAvailable;
 
   function getRows(items: Deal[], cols: number): Deal[][] {
     const rows: Deal[][] = [];
@@ -449,16 +471,6 @@ export default function DealsScreen() {
           </Text>
         </TouchableOpacity>
 
-        {user && (
-          <TouchableOpacity
-            style={[styles.toggleBtn, savedFilter && styles.toggleBtnActive]}
-            onPress={() => setSavedFilter(!savedFilter)}
-          >
-            <Text style={[styles.toggleText, savedFilter && styles.toggleTextActive]}>
-              ❤️ Saved
-            </Text>
-          </TouchableOpacity>
-        )}
       </Animated.View>
 
       {/* Deal cards */}
@@ -529,6 +541,7 @@ export default function DealsScreen() {
               isSaved={savedDeals.has(deal.id)}
               onToggleSave={() => toggleSaveDeal(deal.id)}
               isSignedIn={!!user}
+              onSignInPrompt={promptSignIn}
               distance={distanceMap.get(deal.id) ?? null}
             />
           ))
@@ -544,6 +557,7 @@ export default function DealsScreen() {
                   isSaved={savedDeals.has(deal.id)}
                   onToggleSave={() => toggleSaveDeal(deal.id)}
                   isSignedIn={!!user}
+                  onSignInPrompt={promptSignIn}
                   distance={distanceMap.get(deal.id) ?? null}
                 />
               ))}
@@ -633,19 +647,20 @@ const styles = StyleSheet.create({
   toggleWrapDesktop: { paddingHorizontal: 48 },
   toggleBtn: {
     paddingHorizontal: 18,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 24,
     borderWidth: 1.5,
     borderColor: '#ebebeb',
     backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 36,
   },
   toggleBtnActive: {
     backgroundColor: '#fff0f5',
     borderColor: '#f5c0d5',
   },
-  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center' },
+  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center', lineHeight: 16 },
   toggleTextActive: { color: '#E1306C' },
   regionBtnActive: { backgroundColor: '#fff0f5', borderColor: '#f5c0d5' },
   regionTextActive: { color: '#E1306C', fontWeight: '700' },

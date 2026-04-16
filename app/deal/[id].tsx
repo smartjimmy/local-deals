@@ -39,6 +39,22 @@ function openDirections(restaurantName: string, address: string) {
   }
 }
 
+function callRestaurant(phone: string | null | undefined, restaurantName: string, city: string) {
+  if (phone) {
+    // Direct call if we have the number
+    Linking.openURL(`tel:${phone.replace(/[^+\d]/g, '')}`);
+  } else {
+    // Fallback: Google search for their phone number
+    const query = encodeURIComponent(`${restaurantName} ${city} phone number`);
+    const url = `https://www.google.com/search?q=${query}`;
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    } else {
+      Linking.openURL(url);
+    }
+  }
+}
+
 export default function DealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -151,22 +167,31 @@ export default function DealDetailScreen() {
           <View style={styles.verifiedBox}>
             <Text style={styles.verifiedBoxTitle}>✓ Last verified {formatDate(deal.last_verified)}</Text>
             <Text style={styles.verifiedBoxNote}>
-              Always call ahead to confirm the deal is still available.
+              We recommend calling ahead to confirm the deal is still running.
             </Text>
           </View>
         </View>
       </ScrollView>
 
-      {/* Sticky bottom CTA */}
+      {/* Sticky bottom CTAs */}
       {deal.address ? (
         <View style={styles.bottomBar}>
-          <TouchableOpacity
-            style={styles.directionsBtn}
-            onPress={() => openDirections(deal.restaurant_name, deal.address)}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.directionsBtnText}>Get Directions</Text>
-          </TouchableOpacity>
+          <View style={styles.bottomBtnRow}>
+            <TouchableOpacity
+              style={styles.callBtn}
+              onPress={() => callRestaurant(deal.phone, deal.restaurant_name, deal.neighborhood || '')}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.callBtnText}>📞 Call</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.directionsBtn}
+              onPress={() => openDirections(deal.restaurant_name, deal.address)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.directionsBtnText}>Get Directions</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : null}
     </View>
@@ -225,13 +250,28 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     alignItems: 'center',
   },
+  bottomBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
+    maxWidth: 960,
+    width: '100%',
+  },
+  callBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E1306C',
+    width: 100,
+  },
+  callBtnText: { color: '#E1306C', fontSize: 16, fontWeight: '700' },
   directionsBtn: {
+    flex: 1,
     backgroundColor: '#E1306C',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    maxWidth: 960,
-    width: '100%',
   },
   directionsBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

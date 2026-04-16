@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Platform } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { Platform, AppState } from 'react-native';
 import * as ExpoLocation from 'expo-location';
 
 export type UserLocation = {
@@ -82,6 +82,16 @@ export function useLocation(): LocationState {
 
   useEffect(() => {
     requestLocation();
+  }, []);
+
+  // Re-fetch location when app comes back to foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        requestLocation();
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   return { location, error, loading, refresh: requestLocation };

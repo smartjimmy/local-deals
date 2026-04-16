@@ -17,6 +17,7 @@ export type Deal = {
   google_rating?: number | null;
   latitude?: number | null;
   longitude?: number | null;
+  phone?: string | null;
 };
 
 import { PLACES_CACHE } from './google-places-cache';
