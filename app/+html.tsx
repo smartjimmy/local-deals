@@ -12,8 +12,29 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
 
-        {/* 
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native. 
+        {/* Open Graph / social sharing meta */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Local Deals" />
+        <meta property="og:title" content="Local Deals — Happy Hours & Specials Near You" />
+        <meta property="og:description" content="Discover the best happy hour deals, food specials, and local restaurant offers in the Bay Area." />
+        <meta property="og:url" content="https://local-deals-xi.vercel.app" />
+        <meta property="og:image" content="https://local-deals-xi.vercel.app/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        {/* Twitter / X card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Local Deals — Happy Hours & Specials Near You" />
+        <meta name="twitter:description" content="Discover the best happy hour deals, food specials, and local restaurant offers in the Bay Area." />
+        <meta name="twitter:image" content="https://local-deals-xi.vercel.app/og-image.png" />
+
+        {/* Apple Smart Banner & PWA */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Local Deals" />
+        <meta name="theme-color" content="#E1306C" />
+
+        {/*
+          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
           However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
         */}
         <ScrollViewStyleReset />

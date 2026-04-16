@@ -9,6 +9,7 @@ import {
   Linking,
   Image,
   Platform,
+  Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -100,6 +101,24 @@ export default function DealDetailScreen() {
 
   const imageUri = getDealImageUri(deal);
   const ratingText = formatGoogleRating(deal.id);
+  const dealUrl = `https://local-deals-xi.vercel.app/deal/${deal.id}`;
+
+  async function shareDeal() {
+    const message = `${deal.restaurant_name} — ${deal.deal_description}`;
+    try {
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: deal.restaurant_name, text: message, url: dealUrl });
+      } else if (Platform.OS === 'web') {
+        // Fallback: copy to clipboard
+        await navigator.clipboard?.writeText(`${message}\n${dealUrl}`);
+        alert('Link copied to clipboard!');
+      } else {
+        await Share.share({ message: `${message}\n${dealUrl}` });
+      }
+    } catch (err) {
+      // User cancelled share — ignore
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -108,6 +127,9 @@ export default function DealDetailScreen() {
         {/* Hero image */}
         <View style={styles.heroWrap}>
           <Image source={{ uri: imageUri }} style={styles.heroImg} />
+          <TouchableOpacity style={styles.shareBtn} onPress={shareDeal} activeOpacity={0.85}>
+            <Text style={styles.shareBtnIcon}>↗</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Main content */}
@@ -186,6 +208,13 @@ export default function DealDetailScreen() {
                 <Text style={styles.callBtnText}>📞 Call</Text>
               </TouchableOpacity>
             ) : null}
+            <TouchableOpacity
+              style={styles.shareBottomBtn}
+              onPress={shareDeal}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.callBtnText}>↗ Share</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.directionsBtn}
               onPress={() => openDirections(deal.restaurant_name, deal.address)}
@@ -268,6 +297,32 @@ const styles = StyleSheet.create({
     width: 100,
   },
   callBtnText: { color: '#E1306C', fontSize: 16, fontWeight: '700' },
+  shareBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  shareBtnIcon: { fontSize: 20, color: '#222', marginTop: -1, marginLeft: 1 },
+  shareBottomBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E1306C',
+    width: 100,
+  },
   directionsBtn: {
     flex: 1,
     backgroundColor: '#E1306C',
