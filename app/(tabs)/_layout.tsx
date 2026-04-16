@@ -12,15 +12,16 @@ export default function TabLayout() {
           backgroundColor: '#fff',
           borderTopColor: '#ebebeb',
           borderTopWidth: 1,
-          height: 110,
-          paddingTop: 8,
-          paddingBottom: 50,
         },
         tabBarActiveTintColor: '#E1306C',
         tabBarInactiveTintColor: '#999',
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: '600',
+          paddingBottom: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
         headerShown: useClientOnlyValue(false, false),
       }}>
