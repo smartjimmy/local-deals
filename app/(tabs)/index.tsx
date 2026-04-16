@@ -292,10 +292,6 @@ export default function DealsScreen() {
     'irvine', 'tustin', 'costa mesa', 'newport beach', 'newport', 'anaheim',
     'santa ana', 'huntington beach', 'laguna', 'fullerton', 'orange', 'brea',
     'yorba linda', 'mission viejo', 'lake forest', 'aliso viejo',
-    // LA South Bay cities go under OC tab for now
-    'gardena', 'redondo beach', 'torrance', 'hawthorne', 'inglewood',
-    'manhattan beach', 'hermosa beach', 'el segundo', 'compton', 'carson',
-    'long beach', 'lakewood',
   ];
   const regionDeals = deals.filter((d) => {
     const n = (d.neighborhood || '').toLowerCase();
@@ -572,7 +568,7 @@ export default function DealsScreen() {
           ))
         )}
         {/* Spacer for bottom nav */}
-        <View style={{ height: 80 }} />
+        <View style={{ height: 60 }} />
       </ScrollView>
 
     </SafeAreaView>
@@ -584,7 +580,7 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
 
   // Search
-  searchWrap: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, backgroundColor: '#fff' },
+  searchWrap: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 8, backgroundColor: '#fff' },
   searchWrapDesktop: { paddingHorizontal: 48 },
   searchBar: {
     flexDirection: 'row',
@@ -634,7 +630,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 8,
     gap: 8,
     borderBottomColor: '#ebebeb',
   },
@@ -673,7 +669,7 @@ const styles = StyleSheet.create({
 
   // List
   list: { flex: 1 },
-  listContent: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, gap: 16 },
+  listContent: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8, gap: 16 },
   listContentTablet: { paddingHorizontal: 32 },
   listContentDesktop: { paddingHorizontal: 48 },
 
