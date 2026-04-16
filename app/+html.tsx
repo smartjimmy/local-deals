@@ -36,7 +36,15 @@ body {
     background-color: #000;
   }
 }
-/* Safe area padding for mobile Safari tab bar */
+/* Fix tab bar clipping on mobile Safari and PWA standalone mode.
+   React Native Web sets inline height:49px + padding:0 on the tab bar
+   container, which gets clipped by Safari's bottom chrome / home indicator.
+   :has() targets the parent container; !important overrides inline styles. */
+div:has(> [role="tablist"]) {
+  height: auto !important;
+  min-height: 56px !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+}
 [role="tablist"] {
-  padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+  padding-bottom: 4px !important;
 }`;
