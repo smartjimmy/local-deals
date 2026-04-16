@@ -27,7 +27,7 @@ export default function TabLayout() {
         options={{
           title: 'Deals',
           headerShown: false,
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <Text style={{ fontSize: 22 }}>🍔</Text>
           ),
         }}
@@ -37,8 +37,8 @@ export default function TabLayout() {
         options={{
           title: 'Saved',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>❤️</Text>
+          tabBarIcon: () => (
+            <Text style={{ fontSize: 22 }}>❤️</Text>
           ),
         }}
       />
