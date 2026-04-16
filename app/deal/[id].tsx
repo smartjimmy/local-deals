@@ -12,6 +12,7 @@ import {
   Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
 import { supabase } from '../../lib/supabase';
 import { type Deal, formatGoogleRating, getDealImageUri } from '../../lib/deal';
 
@@ -128,15 +129,12 @@ export default function DealDetailScreen() {
         <View style={styles.heroWrap}>
           <Image source={{ uri: imageUri }} style={styles.heroImg} />
           <TouchableOpacity style={styles.shareBtn} onPress={shareDeal} activeOpacity={0.85}>
-            {/* iOS-style share icon: box with upward arrow */}
-            <View style={styles.shareIconWrap}>
-              <View style={styles.shareArrowStem} />
-              <View style={styles.shareArrowHead}>
-                <View style={styles.shareArrowLeft} />
-                <View style={styles.shareArrowRight} />
-              </View>
-              <View style={styles.shareBox} />
-            </View>
+            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M21 12L14 5v4C7 10 4 14 3 19c2.5-3.5 6-5.1 11-5.1V18l7-6z"
+                fill="#333"
+              />
+            </Svg>
           </TouchableOpacity>
         </View>
 
@@ -313,56 +311,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
-  },
-  shareIconWrap: {
-    width: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  shareArrowStem: {
-    width: 2,
-    height: 12,
-    backgroundColor: '#333',
-    position: 'absolute',
-    top: 0,
-    zIndex: 1,
-  },
-  shareArrowHead: {
-    position: 'absolute',
-    top: 0,
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  shareArrowLeft: {
-    width: 7,
-    height: 2,
-    backgroundColor: '#333',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    transform: [{ rotate: '45deg' }],
-    transformOrigin: 'right center',
-  },
-  shareArrowRight: {
-    width: 7,
-    height: 2,
-    backgroundColor: '#333',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    transform: [{ rotate: '-45deg' }],
-    transformOrigin: 'left center',
-  },
-  shareBox: {
-    width: 14,
-    height: 10,
-    borderWidth: 2,
-    borderTopWidth: 0,
-    borderColor: '#333',
-    borderRadius: 2,
-    position: 'absolute',
-    bottom: 0,
   },
   directionsBtn: {
     flex: 1,
