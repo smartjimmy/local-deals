@@ -14,7 +14,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.smartjimmy.localdeals",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Local Deals uses your location to show nearby restaurant deals and sort them by distance.",
