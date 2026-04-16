@@ -1,7 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { PLACES_CACHE } from '../../lib/google-places-cache';
-
 const supabase = createClient(
   'https://yzkaaxazsakuqcpeesry.supabase.co',
   'sb_publishable_jzL5jU9PKmTAiCR33SE_Cg_p9cHhpD-'
@@ -33,8 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.redirect(302, '/');
   }
 
-  const cached = PLACES_CACHE[id];
-  const imageUrl = cached?.photoUrl || 'https://local-deals-xi.vercel.app/og-image.png';
+  const imageUrl = `https://local-deals-xi.vercel.app/api/og-image/${id}`;
   const title = `${deal.restaurant_name} — ${deal.deal_description}`;
   const description = [deal.address, deal.neighborhood].filter(Boolean).join(' · ');
   const appUrl = `https://local-deals-xi.vercel.app/deal/${id}?r=1`;
@@ -52,8 +49,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
-  <meta property="og:image:width" content="600" />
-  <meta property="og:image:height" content="600" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://local-deals-xi.vercel.app/deal/${id}" />
 
   <!-- Twitter -->
