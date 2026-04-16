@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Text, Platform } from 'react-native';
 
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
@@ -8,20 +8,26 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#ebebeb',
-          borderTopWidth: 1,
-        },
+        tabBarStyle: Platform.select({
+          web: {
+            backgroundColor: '#fff',
+            borderTopColor: '#ebebeb',
+            borderTopWidth: 1,
+            height: 70,
+            paddingBottom: 12,
+            paddingTop: 8,
+          },
+          default: {
+            backgroundColor: '#fff',
+            borderTopColor: '#ebebeb',
+            borderTopWidth: 1,
+          },
+        }),
         tabBarActiveTintColor: '#E1306C',
         tabBarInactiveTintColor: '#999',
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          paddingBottom: 4,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
         },
         headerShown: useClientOnlyValue(false, false),
       }}>
