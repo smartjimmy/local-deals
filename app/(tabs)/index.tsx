@@ -432,7 +432,7 @@ export default function DealsScreen() {
         styles.toggleWrap,
         isDesktop && styles.toggleWrapDesktop,
         {
-          maxHeight: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 52] }),
+          maxHeight: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 64] }),
           opacity: filterHeight,
           overflow: 'hidden' as const,
           marginBottom: filterHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 0] }),
@@ -604,8 +604,8 @@ export default function DealsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f7f7' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7' },
+  container: { flex: 1, backgroundColor: '#fff' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
 
   // Search
   searchWrap: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 8, backgroundColor: '#fff' },
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff0f5',
     borderColor: '#f5c0d5',
   },
-  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center', lineHeight: 16 },
+  toggleText: { fontSize: 13, fontWeight: '500', color: '#717171', textAlign: 'center', lineHeight: 20 },
   toggleTextActive: { color: '#E1306C' },
   regionBtnActive: { backgroundColor: '#fff0f5', borderColor: '#f5c0d5' },
   regionTextActive: { color: '#E1306C', fontWeight: '700' },
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
   sectionCount: { fontSize: 13, fontWeight: '500', color: '#717171' },
 
   // List
-  list: { flex: 1 },
+  list: { flex: 1, backgroundColor: '#f7f7f7' },
   listContent: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8, gap: 16 },
   listContentTablet: { paddingHorizontal: 32 },
   listContentDesktop: { paddingHorizontal: 48 },
