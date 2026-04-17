@@ -18,7 +18,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta property="og:title" content="Local Deals — Happy Hours & Specials Near You" />
         <meta property="og:description" content="Discover the best happy hour deals, food specials, and local restaurant offers in the Bay Area." />
         <meta property="og:url" content="https://local-deals-xi.vercel.app" />
-        <meta property="og:image" content="https://local-deals-xi.vercel.app/og-image.png" />
+        <meta property="og:image" content="https://local-deals-xi.vercel.app/og-image.png?v=2" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 
@@ -26,7 +26,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Local Deals — Happy Hours & Specials Near You" />
         <meta name="twitter:description" content="Discover the best happy hour deals, food specials, and local restaurant offers in the Bay Area." />
-        <meta name="twitter:image" content="https://local-deals-xi.vercel.app/og-image.png" />
+        <meta name="twitter:image" content="https://local-deals-xi.vercel.app/og-image.png?v=2" />
 
         {/* Apple Smart Banner & PWA */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
